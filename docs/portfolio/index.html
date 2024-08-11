@@ -5,7 +5,7 @@
 <meta name="generator" content="Docusaurus v3.5.1">
 <title data-rh="true">Portfolio | 전상택</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:image" content="https://benidjor.github.io/img/docusaurus-social-card.jpg"><meta data-rh="true" name="twitter:image" content="https://benidjor.github.io/img/docusaurus-social-card.jpg"><meta data-rh="true" property="og:url" content="https://benidjor.github.io/docs/portfolio"><meta data-rh="true" property="og:locale" content="en"><meta data-rh="true" name="docusaurus_locale" content="en"><meta data-rh="true" name="docsearch:language" content="en"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="Portfolio | 전상택"><meta data-rh="true" name="description" content="앙상블 기법을 활용한 안개 발생 예측 모델링"><meta data-rh="true" property="og:description" content="앙상블 기법을 활용한 안개 발생 예측 모델링"><link data-rh="true" rel="icon" href="/img/favicon.ico"><link data-rh="true" rel="canonical" href="https://benidjor.github.io/docs/portfolio"><link data-rh="true" rel="alternate" href="https://benidjor.github.io/docs/portfolio" hreflang="en"><link data-rh="true" rel="alternate" href="https://benidjor.github.io/docs/portfolio" hreflang="x-default"><link rel="alternate" type="application/rss+xml" href="/blog/rss.xml" title="전상택 RSS Feed">
 <link rel="alternate" type="application/atom+xml" href="/blog/atom.xml" title="전상택 Atom Feed"><link rel="stylesheet" href="/assets/css/styles.f7f2a06f.css">
-<script src="/assets/js/runtime~main.af116d52.js" defer="defer"></script>
+<script src="/assets/js/runtime~main.919d83f2.js" defer="defer"></script>
 <script src="/assets/js/main.f7bdf5c4.js" defer="defer"></script>
 </head>
 <body class="navigation-with-keyboard">
@@ -169,19 +169,11 @@
 </ul>
 <h3 class="anchor anchorWithStickyNavbar_LWe7" id="분석-배경-및-목적-2">분석 배경 및 목적<a href="#분석-배경-및-목적-2" class="hash-link" aria-label="Direct link to 분석 배경 및 목적" title="Direct link to 분석 배경 및 목적">​</a></h3>
 <ul>
-<li>
-<p>스포츠에서 통계 및 예측 모델의 중요성 증가</p>
-</li>
-<li>
-<p>다양한 스포츠 통계 회사에서 정교한 예측 모형 제공 (ex. opta)</p>
-</li>
-<li>
-<p>선수의 통계 자료를 바탕으로, 해당 시즌 예상되는 몸값을 예측하는 모델 만드는 것이 목표</p>
-</li>
-<li>
-<p>데이터베이스 스키마
-<img decoding="async" loading="lazy" src="https://i.imgur.com/N9oXF1m.png" alt="데이터베이스 스키마" class="img_ev3q"></p>
-</li>
+<li>스포츠에서 통계 및 예측 모델의 중요성 증가</li>
+<li>다양한 스포츠 통계 회사에서 정교한 예측 모형 제공 (ex. opta)</li>
+<li>선수의 통계 자료를 바탕으로, 해당 시즌 예상되는 몸값을 예측하는 모델 만드는 것이 목표</li>
+<li>데이터베이스 스키마
+<img decoding="async" loading="lazy" src="https://i.imgur.com/N9oXF1m.png" alt="데이터베이스 스키마" class="img_ev3q"></li>
 </ul>
 <h3 class="anchor anchorWithStickyNavbar_LWe7" id="분석-내용-2">분석 내용<a href="#분석-내용-2" class="hash-link" aria-label="Direct link to 분석 내용" title="Direct link to 분석 내용">​</a></h3>
 <h4 class="anchor anchorWithStickyNavbar_LWe7" id="가설-설정">가설 설정<a href="#가설-설정" class="hash-link" aria-label="Direct link to 가설 설정" title="Direct link to 가설 설정">​</a></h4>
@@ -194,13 +186,14 @@
 <ol>
 <li>Data Collection<!-- -->
 <ul>
-<li>Kaggle 데이터셋 다운로드 (대용량) → 별도 저장 후 전처리 → <a href="https://github.com/benidjor/player-value-prediction-from-transfermarkt/tree/main/data" target="_blank" rel="noopener noreferrer">data 폴더</a>에 저장</li>
+<li>Kaggle 데이터셋 다운로 드 (대용량) → 별도 저장 후 전처리 → <a href="https://github.com/benidjor/player-value-prediction-from-transfermarkt/tree/main/data" target="_blank" rel="noopener noreferrer">data 폴더</a>에 저장</li>
 </ul>
 </li>
 <li>Data Preprocessing &amp; EDA<!-- -->
 <ul>
-<li><code>appearances</code> <code>competitions</code> <code>players</code> <code>player_valuations_df</code> 데이터셋 사용 → <code>group by</code> 이후 <code>merge</code> 하여 새로운 데이터프레임 생성</li>
-<li>원본 데이터셋과 동일한 출처에서 가져온 <a href="https://www.kaggle.com/datasets/mexwell/football-data-from-transfermarkt?select=players.csv" target="_blank" rel="noopener noreferrer">다른 데이터셋</a> 발견하여, merge 후 결측치 최대한 처리</li>
+<li><code>appearances</code> <code>competitions</code> <code>players</code> <code>player_valuations_df</code> 데이터셋 사용 <br>
+<!-- -->→ <code>group by</code> 이후 <code>merge</code> 하여 새로운 데이터프레임 생성</li>
+<li>원본 데이터셋과 동일한 출처에서 가져온 <a href="https://www.kaggle.com/datasets/mexwell/football-data-from-transfermarkt?select=players.csv" target="_blank" rel="noopener noreferrer">다른 데이터셋</a> 발견하여, <code>merge</code> 후 결측치 최대한 처리</li>
 <li>다중 공선성 확인 후 상관관계 높은 컬럼 제거</li>
 <li>age, position, market_value, goals, assists 컬럼 시각화</li>
 </ul>
