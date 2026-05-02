@@ -315,14 +315,31 @@ tags: ["projects", "meta"]
 1) GitHub: 기존 main 보존
    - main 브랜치를 archive-docusaurus-2024 브랜치로 복사 (sha 보존)
 
-2) 로컬: girok-md 템플릿으로 새 작업 디렉토리 생성
-   $ git clone https://github.com/7loro/girok-md /Users/aryijq/Documents/01_DE_project/benidjor.github.io
+2) 로컬: girok-md 템플릿을 blog 레포 디렉토리에 통합
+
+   ⚠ 본 spec 작성 시점에 이미 다음 상태입니다:
+   - /Users/aryijq/Documents/01_DE_project/benidjor.github.io/ 디렉토리 존재
+   - 그 안에 docs/superpowers/specs/2026-05-03-tech-blog-design.md 있음
+   - git init 완료, spec commit 1개 있음
+
+   git clone 은 빈 디렉토리를 요구하므로 다음 절차로 통합합니다:
+
+   # (a) girok-md 템플릿을 임시 디렉토리에 받기
+   $ cd /tmp
+   $ git clone --depth=1 https://github.com/7loro/girok-md
+   $ rm -rf girok-md/.git    # girok-md 원본 git history 끊기
+
+   # (b) 템플릿 파일을 blog 레포로 머지 (docs/ 는 spec 보존을 위해 제외)
+   $ rsync -av --exclude='docs/' /tmp/girok-md/ \
+       /Users/aryijq/Documents/01_DE_project/benidjor.github.io/
+
+   # (c) blog 레포에서 의존성 설치 + 원격 연결
    $ cd /Users/aryijq/Documents/01_DE_project/benidjor.github.io
-   $ rm -rf .git
-   $ git init && git remote add origin git@github.com:benidjor/benidjor.github.io.git
+   $ git remote add origin git@github.com:benidjor/benidjor.github.io.git
    $ npm install
 
-   (이미 이 디렉토리에 본 spec 문서가 있다면 충돌하지 않도록 spec은 유지)
+   # (d) 임시 디렉토리 정리
+   $ rm -rf /tmp/girok-md
 
 3) setting.toml 편집 (섹션 5의 값으로)
 
@@ -543,5 +560,6 @@ tags: ["projects", "meta"]
 ## 14. 본 문서 위치
 
 - **Spec 위치**: `/Users/aryijq/Documents/01_DE_project/benidjor.github.io/docs/superpowers/specs/2026-05-03-tech-blog-design.md`
-- 이 디렉토리는 첫 셋업 절차의 **2단계** (girok-md clone) 시점에 blog 레포가 됩니다. spec은 그대로 보존되어 새 레포의 일부가 됩니다.
-- 만약 girok-md clone이 빈 디렉토리를 요구한다면, spec을 임시로 다른 곳으로 옮기고 clone 완료 후 다시 옮길 수 있습니다 (셋업 시 결정).
+- 이 디렉토리는 brainstorming 세션에서 미리 생성되어 git init + spec commit 까지 완료된 상태.
+- 첫 셋업의 2단계(섹션 8.1)에서 girok-md 템플릿을 `rsync --exclude='docs/'` 로 머지함으로써 spec history는 그대로 보존되고 girok-md 파일만 같은 레포에 추가됩니다.
+- 결과적으로 spec과 girok-md 파일이 한 레포 안에 자연스럽게 통합되며, spec의 git 히스토리(이번 commit)는 보존됩니다.
