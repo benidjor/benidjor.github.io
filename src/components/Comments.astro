@@ -1,0 +1,144 @@
+---
+/**
+ * Giscus Comments Component
+ * - Loads configuration from [comments] section in setting.toml
+ * - GitHub Discussions based comment system
+ */
+import { t } from '../i18n';
+
+interface Props {
+  title?: string;
+}
+
+interface GiscusConfig {
+  repo: string;
+  repo_id: string;
+  category: string;
+  category_id: string;
+  mapping: string;
+  strict: string;
+  reactions_enabled: string;
+  emit_metadata: string;
+  input_position: string;
+  theme: string;
+  lang: string;
+}
+
+interface CommentsConfig {
+  enabled: boolean;
+  provider: string;
+  giscus?: GiscusConfig;
+}
+
+const { title } = Astro.props;
+
+const comments = import.meta.env.COMMENTS as CommentsConfig;
+const isEnabled = comments?.enabled && comments?.provider === 'giscus';
+const giscus = comments?.giscus;
+const isConfigured = isEnabled && giscus?.repo && giscus?.repo_id && giscus?.category_id;
+const isDev = import.meta.env.DEV;
+---
+
+{isConfigured && giscus && (
+  <section class="comments" aria-label={t('comments')}>
+    <h2 class="comments__title">{t('comments')}</h2>
+    <div class="giscus-container">
+      <script
+        is:inline
+        src="https://giscus.app/client.js"
+        data-repo={giscus.repo}
+        data-repo-id={giscus.repo_id}
+        data-category={giscus.category}
+        data-category-id={giscus.category_id}
+        data-mapping={giscus.mapping}
+        data-strict={giscus.strict}
+        data-reactions-enabled={giscus.reactions_enabled}
+        data-emit-metadata={giscus.emit_metadata}
+        data-input-position={giscus.input_position}
+        data-theme={giscus.theme}
+        data-lang={giscus.lang}
+        data-loading="lazy"
+        crossorigin="anonymous"
+        async
+      ></script>
+      <script is:inline>
+        // Sync initial theme with Giscus iframe after load
+        window.addEventListener('message', function(event) {
+          if (event.origin !== 'https://giscus.app') return;
+          if (!(typeof event.data === 'object' && event.data.giscus)) return;
+
+          var currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+          var giscusFrame = document.querySelector('iframe.giscus-frame');
+          if (giscusFrame) {
+            giscusFrame.contentWindow.postMessage(
+              { giscus: { setConfig: { theme: currentTheme === 'dark' ? 'dark' : 'light' } } },
+              'https://giscus.app',
+            );
+          }
+        }, { once: true });
+      </script>
+    </div>
+  </section>
+)}
+
+{!isConfigured && isDev && (
+  <section class="comments comments--placeholder">
+    <p class="comments__notice">
+      💬 To enable comments, configure the [comments] section in <code>setting.toml</code>.
+    </p>
+    <p class="comments__link">
+      <a href="https://giscus.app" target="_blank" rel="noopener noreferrer">
+        → Generate Giscus settings
+      </a>
+    </p>
+  </section>
+)}
+
+<style>
+  .comments {
+    margin-top: var(--spacing-3xl);
+    padding-top: var(--spacing-xl);
+    border-top: var(--border-width) solid var(--border-color);
+  }
+
+  .comments__title {
+    font-size: var(--font-size-xl);
+    margin-bottom: var(--spacing-lg);
+    color: var(--text-primary);
+  }
+
+  .giscus-container {
+    min-height: 150px;
+  }
+
+  .comments--placeholder {
+    background-color: var(--bg-secondary);
+    padding: var(--spacing-lg);
+    border: 2px dashed var(--border-color);
+  }
+
+  .comments__notice {
+    margin: 0 0 var(--spacing-sm);
+    color: var(--text-secondary);
+  }
+
+  .comments__notice code {
+    background-color: var(--bg-primary);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: var(--font-size-sm);
+  }
+
+  .comments__link {
+    margin: 0;
+  }
+
+  .comments__link a {
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  .comments__link a:hover {
+    text-decoration: underline;
+  }
+</style>

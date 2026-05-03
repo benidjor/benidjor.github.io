@@ -1,0 +1,226 @@
+---
+import ThemeToggle from '../components/ThemeToggle.astro';
+import ThemeSelector from '../components/ThemeSelector.astro';
+import Search from '../components/Search.astro';
+import SEO from '../components/SEO.astro';
+import Analytics from '../components/Analytics.astro';
+import { t, getLocale } from '../i18n';
+import '../styles/global.css';
+
+interface AlternateUrl {
+  lang: string;
+  url: string;
+}
+
+interface Props {
+  title: string;
+  description?: string;
+  image?: string;
+  canonicalURL?: string;
+  alternateUrls?: AlternateUrl[];
+}
+
+const { title, description = t('defaultDescription'), image, canonicalURL, alternateUrls = [] } = Astro.props;
+
+const blogName = import.meta.env.BLOG_NAME || 'My Blog';
+
+const base = import.meta.env.BASE_URL;
+const baseUrl = base.endsWith('/') ? base : `${base}/`;
+const htmlLang = getLocale() === 'ko' ? 'ko' : 'en';
+---
+
+<!DOCTYPE html>
+<html lang={htmlLang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+    
+    <SEO title={title} description={description} image={image} canonicalURL={canonicalURL} />
+    
+    {alternateUrls.length > 0 && alternateUrls.map(alt => (
+      <link rel="alternate" hreflang={alt.lang} href={alt.url} />
+    ))}
+    {alternateUrls.length > 0 && (
+      <link rel="alternate" hreflang="x-default" href={alternateUrls[0]?.url} />
+    )}
+    
+    <!-- FOUC 방지: 페이지 로드 전 테마 적용 -->
+    <script is:inline>
+      (function() {
+        const theme = localStorage.getItem('theme') || 
+          (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', theme);
+        
+        const designTheme = localStorage.getItem('design-theme') || 'neo-brutalism';
+        document.documentElement.setAttribute('data-design-theme', designTheme);
+      })();
+    </script>
+    
+    <!-- 폰트 로드 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link 
+      href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;600;700&display=swap" 
+      rel="stylesheet" 
+    />
+  </head>
+  <body>
+    <header class="header">
+      <div class="container header__inner">
+         <a href={baseUrl} class="header__logo">{blogName}</a>
+         <nav class="header__nav">
+           <a href={baseUrl} class="header__link">Home</a>
+           <a href={`${baseUrl}posts`} class="header__link">Posts</a>
+           <a href={`${baseUrl}tags`} class="header__link">Tags</a>
+         </nav>
+        <div class="header__actions">
+          <Search />
+          <ThemeSelector />
+          <ThemeToggle />
+        </div>
+      </div>
+    </header>
+
+    <main class="main">
+      <slot />
+    </main>
+
+    <footer class="footer">
+      <div class="container footer__inner">
+        <p class="footer__text">May your code compile on the first try.<br />Happy coding! 🚀</p>
+      </div>
+    </footer>
+
+    <Analytics />
+  </body>
+</html>
+
+<style>
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background-color: var(--bg-primary);
+    border-bottom: var(--border-width) solid var(--border-color);
+    padding: var(--spacing-md) 0;
+  }
+  
+  .header__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-lg);
+  }
+  
+  .header__logo {
+    font-family: var(--font-display);
+    font-size: var(--font-size-2xl);
+    font-weight: 900;
+    text-decoration: none;
+    background-color: var(--accent);
+    color: #000000;
+    padding: var(--spacing-xs) var(--spacing-md);
+    border: var(--border-width) solid var(--border-color);
+    box-shadow: 3px 3px 0 var(--shadow-color);
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  }
+  
+  .header__logo:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 5px 5px 0 var(--shadow-color);
+    background-color: var(--accent);
+  }
+  
+  .header__nav {
+    display: flex;
+    gap: var(--spacing-md);
+  }
+  
+  .header__link {
+    font-family: var(--font-sans);
+    font-weight: 700;
+    text-transform: uppercase;
+    text-decoration: none;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border: 2px solid transparent;
+    transition: border-color var(--transition-fast), background-color var(--transition-fast);
+  }
+  
+  .header__link:hover {
+    border-color: var(--border-color);
+  }
+  
+  .header__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+  }
+
+  .main {
+    min-height: calc(100vh - 200px);
+    padding: var(--spacing-2xl) 0;
+  }
+  
+  .footer {
+    background-color: var(--bg-secondary);
+    border-top: var(--border-width) solid var(--border-color);
+    padding: var(--spacing-xl) 0;
+  }
+  
+  .footer__inner {
+    text-align: center;
+  }
+  
+  .footer__text {
+    font-family: var(--font-mono);
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+    margin: 0;
+  }
+  
+  @media (max-width: 768px) {
+    .header {
+      padding: var(--spacing-sm) 0;
+    }
+
+    .header__inner {
+      flex-wrap: wrap;
+      position: relative;
+      gap: var(--spacing-sm);
+    }
+
+    .header__logo {
+      order: 2;
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: var(--font-size-lg);
+      padding: var(--spacing-xs) var(--spacing-sm);
+      box-shadow: 2px 2px 0 var(--shadow-color);
+    }
+
+    .header__logo:hover {
+      transform: translateX(-50%) translate(-1px, -1px);
+      box-shadow: 3px 3px 0 var(--shadow-color);
+    }
+
+    .header__actions {
+      order: 1;
+      margin-left: auto;
+      gap: var(--spacing-xs);
+    }
+    
+    .header__nav {
+      order: 3;
+      width: 100%;
+      justify-content: center;
+      margin-top: var(--spacing-lg);
+      gap: var(--spacing-sm);
+    }
+    
+    .header__link {
+      font-size: var(--font-size-sm);
+      padding: var(--spacing-xs);
+    }
+  }
+</style>

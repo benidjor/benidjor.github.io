@@ -1,0 +1,112 @@
+# girok.md Configuration File
+# Knowledge becomes a map when shared.
+# Edit this file to configure your blog.
+
+# Markdown Source Path
+# Enter the absolute path to the folder containing markdown files to sync.
+source_root_path = "/source"
+
+# Blog Name
+# The name displayed in the site title and header.
+blog_name = "Casper Blog"
+
+# Site URL
+# Enter your GitHub Pages deployment URL or custom domain.
+# e.g., "https://7loro.github.io" or "https://yourdomain.com"
+site_url = "https://7loro.github.io"
+
+# Locale
+# Language for UI text. Supported: "en", "ko"
+locale = "en"
+
+# Intro Section
+# Customize the homepage introduction section.
+[intro]
+name = "Your Name"
+role = "Developer"
+greeting = "Hello, I'm"
+description = "I write blog posts from my Obsidian vault.\nFrom bug fixes to daily logs, I commit everything."
+intro_tags = ["JavaScript", "TypeScript", "React", "Node.js"]
+
+# Posts Configuration
+# Settings for how posts are synced and processed.
+[posts]
+# Tags to exclude from synced posts.
+# Posts with these tags will still be synced, but these specific tags will be removed.
+# Useful for personal/private tags you don't want to appear on your public blog.
+# exclude_tags = ["work", "personal"]
+
+# Translation Configuration
+# Auto-translate posts to other languages using AI or Google Translate.
+[posts.translate]
+# Enable translation feature
+enabled = true
+
+# Target languages to translate posts into.
+# Posts will be translated from the default locale to these languages.
+# See ISO 639-1 language codes: https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes
+target_langs = ["en", "ko"]
+
+# === Optional: LLM Provider Settings ===
+# If not configured, Google Translate (free) will be used as fallback.
+
+# API Provider: "openai" | "anthropic" | "google"
+# provider = "openai"
+
+# API Key (use environment variable for security: "${OPENAI_API_KEY}")
+# api_key = "${OPENAI_API_KEY}"
+
+# Model to use for translation
+# OpenAI: "gpt-4o", "gpt-4o-mini", "gpt-4-turbo"
+# Anthropic: "claude-sonnet-4-20250514", "claude-3-5-haiku-20241022"
+# Google: "gemini-1.5-pro", "gemini-1.5-flash"
+# model = "gpt-4o-mini"
+
+# Comments Configuration
+[comments]
+# Set to true to enable comments on posts.
+enabled = false
+# Currently only "giscus" is supported.
+provider = "giscus"
+
+[comments.giscus]
+# Giscus: A comments system powered by GitHub Discussions.
+# Generate your settings at: https://giscus.app
+# GitHub repository (e.g., "username/repo")
+repo = ""
+# Repository ID from giscus.app (e.g., "R_kgDOxxxxxx")
+repo_id = ""
+# Discussion category name (e.g., "Announcements", "General", "Comments")
+category = ""
+# Category ID from giscus.app (e.g., "DIC_kwDOxxxxxx")
+category_id = ""
+# How to map posts to discussions: "pathname" | "url" | "title" | "og:title"
+mapping = "pathname"
+# Strict title matching: "0" (off) | "1" (on)
+strict = "0"
+# Enable reactions: "0" (off) | "1" (on)
+reactions_enabled = "1"
+# Emit discussion metadata: "0" (off) | "1" (on)
+emit_metadata = "0"
+# Comment input position: "top" | "bottom"
+input_position = "top"
+# Theme: "light" | "dark" | "preferred_color_scheme" | custom URL
+theme = "preferred_color_scheme"
+# Language: "en" | "ko" | "ja" | "zh-CN" | etc.
+lang = "en"
+
+# Analytics Configuration
+# Track page views and display view counts on posts.
+[analytics]
+# Set to true to enable analytics tracking.
+enabled = false
+# Currently only "goatcounter" is supported.
+provider = "goatcounter"
+
+[analytics.goatcounter]
+# GoatCounter: Privacy-friendly web analytics without cookies.
+# Create your free account at: https://goatcounter.com
+# Your site code (e.g., "mysite" for mysite.goatcounter.com)
+site_code = ""
+# Show view count on posts (requires site_code to be configured)
+show_view_count = true

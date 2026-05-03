@@ -1,0 +1,207 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { t } from '../../i18n';
+import { getPostsForLocale, getPostUrl } from '../../utils/i18nRouting';
+
+export async function getStaticPaths() {
+  const allPosts = await getCollection('posts');
+  const posts = getPostsForLocale(allPosts);
+  const tags = [...new Set(posts.flatMap((post) => post.data.tags || []))];
+
+  // 소문자 태그 URL -> 원본 태그 매핑
+  const tagMap = new Map<string, string>();
+  tags.forEach((tag) => {
+    const lowerTag = tag.toLowerCase();
+    if (!tagMap.has(lowerTag)) {
+      tagMap.set(lowerTag, tag);
+    }
+  });
+
+  return Array.from(tagMap.entries()).map(([lowerTag, originalTag]) => ({
+    params: { tag: lowerTag },
+    props: {
+      originalTag,
+      posts: posts.filter((post) => 
+        post.data.tags?.some((postTag) => postTag.toLowerCase() === lowerTag)
+      ).sort((a, b) => {
+        return new Date(b.data.date).getTime() - new Date(a.data.date).getTime();
+      }),
+    },
+  }));
+}
+
+interface Props {
+  posts: any[];
+  originalTag: string;
+}
+
+const { tag } = Astro.params;
+const { posts, originalTag } = Astro.props;
+
+const base = import.meta.env.BASE_URL;
+const baseUrl = base.endsWith('/') ? base : `${base}/`;
+const dateLocale = t('dateLocale');
+---
+
+<BaseLayout title={t('tagPageTitle', { tag: originalTag })} description={t('tagPageTitle', { tag: originalTag })}>
+  <div class="container">
+    <div class="tag-page">
+      <div class="tag-page__header">
+         <a href={`${baseUrl}tags`} class="tag-page__back">{t('backToTags')}</a>
+         <h1 class="tag-page__title">#{originalTag}</h1>
+         <p class="tag-page__count">{t('tagPostsCount', { count: posts.length })}</p>
+       </div>
+
+      <div class="tag-page__posts">
+        {posts.length > 0 ? (
+          <div class="posts-list">
+            {posts.map((post) => (
+              <article class="post-card">
+                <h2 class="post-card__title">
+                   <a href={getPostUrl(post, baseUrl)}>{post.data.title}</a>
+                 </h2>
+                <p class="post-card__date">
+                  {new Date(post.data.date).toLocaleDateString(dateLocale, {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                  })}
+                </p>
+                {post.data.summary && (
+                  <p class="post-card__summary">{post.data.summary}</p>
+                )}
+                {post.data.tags && post.data.tags.length > 0 && (
+                  <div class="post-card__tags">
+                   {post.data.tags.map((t: string) => (
+                       <a href={`${baseUrl}tags/${t.toLowerCase()}`} class="post-card__tag">
+                         {t}
+                       </a>
+                     ))}
+                  </div>
+                )}
+              </article>
+            ))}
+          </div>
+        ) : (
+          <p class="tag-page__empty">{t('noPostsInTag')}</p>
+        )}
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .tag-page {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 var(--spacing-lg);
+  }
+
+  .tag-page__header {
+    margin-bottom: var(--spacing-2xl);
+  }
+
+  .tag-page__back {
+    display: inline-block;
+    margin-bottom: var(--spacing-md);
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color var(--transition-fast);
+  }
+
+  .tag-page__back:hover {
+    color: var(--text-primary);
+  }
+
+  .tag-page__title {
+    font-family: var(--font-display);
+    font-size: var(--font-size-4xl);
+    font-weight: 900;
+    margin: 0 0 var(--spacing-md) 0;
+    text-transform: uppercase;
+  }
+
+  .tag-page__count {
+    font-size: var(--font-size-lg);
+    color: var(--text-secondary);
+    margin: 0;
+  }
+
+  .tag-page__empty {
+    text-align: center;
+    color: var(--text-secondary);
+    padding: var(--spacing-2xl);
+  }
+
+  .posts-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+  }
+
+  .post-card {
+    padding: var(--spacing-lg);
+    border: var(--border-width) solid var(--border-color);
+    background-color: var(--bg-secondary);
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  }
+
+  .post-card:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 4px 4px 0 var(--shadow-color);
+  }
+
+  .post-card__title {
+    margin: 0 0 var(--spacing-sm) 0;
+    font-size: var(--font-size-xl);
+  }
+
+  .post-card__title a {
+    text-decoration: none;
+    color: var(--text-primary);
+    transition: color var(--transition-fast);
+  }
+
+  .post-card__title a:hover {
+    color: var(--accent);
+  }
+
+  .post-card__date {
+    margin: 0 0 var(--spacing-md) 0;
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+  }
+
+  .post-card__summary {
+    margin: 0 0 var(--spacing-md) 0;
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+
+  .post-card__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-md);
+  }
+
+  .post-card__tag {
+    display: inline-block;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    background-color: var(--accent);
+    color: #000000;
+    text-decoration: none;
+    border: var(--border-width) solid var(--border-color);
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    text-transform: lowercase;
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  }
+
+  .post-card__tag:hover {
+    transform: translate(-1px, -1px);
+    box-shadow: 2px 2px 0 var(--shadow-color);
+  }
+</style>

@@ -1,0 +1,471 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getTagStyle } from '../utils/tagColor';
+import { t } from '../i18n';
+import { getPostsForLocale, getPostUrl } from '../utils/i18nRouting';
+
+const base = import.meta.env.BASE_URL;
+const baseUrl = base.endsWith('/') ? base : `${base}/`;
+const dateLocale = t('dateLocale');
+const blogName = import.meta.env.BLOG_NAME || 'My Blog';
+
+const intro = import.meta.env.INTRO || {};
+const introName = intro.name || 'Your Name';
+const introRole = intro.role || 'Developer';
+const introGreeting = intro.greeting || "Hello, I'm";
+const introDescription = intro.description || 'Welcome to my blog.';
+const introTags = intro.intro_tags || [];
+
+const allPosts = await getCollection('posts');
+const recentPosts = getPostsForLocale(allPosts)
+  .sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime())
+  .slice(0, 9);
+---
+
+<BaseLayout title={blogName}>
+  <div class="container">
+    <section class="intro">
+      <div class="intro__decoration">
+        <div class="code-decoration animate-slide-up">
+          <span class="code-line"><span class="code-keyword">const</span> developer = {'{'}</span>
+          <span class="code-line code-indent"><span class="code-key">name</span>: <span class="code-string">"{introName}"</span>,</span>
+          <span class="code-line code-indent"><span class="code-key">role</span>: <span class="code-string">"{introRole}"</span>,</span>
+          <span class="code-line code-indent"><span class="code-key">passion</span>: <span class="code-boolean">true</span></span>
+          <span class="code-line">{'}'};</span>
+        </div>
+      </div>
+      
+      <div class="intro__content animate-slide-up stagger-1">
+        <h1 class="intro__greeting">
+          {introGreeting}<br />
+          <span class="intro__name">{introName}</span>
+        </h1>
+        <p class="intro__role">
+          <span class="role-bracket">&lt;</span>
+          {introRole}
+          <span class="role-bracket">/&gt;</span>
+        </p>
+        <p class="intro__desc" set:html={introDescription.replace(/\n/g, '<br />')} />
+        
+        {introTags.length > 0 && (
+          <div class="intro__tags animate-slide-up stagger-2">
+            {introTags.map((tag: string) => (
+              <span class="intro-tag">{tag}</span>
+            ))}
+          </div>
+        )}
+      </div>
+    </section>
+
+    <!-- Recent posts section -->
+    {recentPosts.length > 0 && (
+      <section class="recent-posts">
+        <div class="section-header animate-slide-up stagger-2">
+          <h2 class="recent-posts__title">
+            <span class="title-icon">📝</span>
+            {t('recentPosts')}
+          </h2>
+          <a href={`${baseUrl}posts`} class="view-all-link">
+            {t('viewAllPosts')}
+          </a>
+        </div>
+        
+        <div class="recent-posts__list">
+          {recentPosts.map((post, index) => (
+            <article class={`post-card animate-slide-up stagger-${index + 3}`}>
+              <div class="post-card__content">
+                <div class="post-card__meta">
+                  <time class="post-card__date">
+                    {new Date(post.data.date).toLocaleDateString(dateLocale, {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric',
+                    })}
+                  </time>
+                  {post.data.tags && post.data.tags.length > 0 && (
+                    <div class="post-card__tags">
+                      {post.data.tags.map((tag: string) => (
+                        <span class="post-tag" style={getTagStyle(tag)}>{tag}</span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <h3 class="post-card__title">
+                  <a href={getPostUrl(post, baseUrl)}>{post.data.title}</a>
+                </h3>
+                {post.data.summary && (
+                  <p class="post-card__summary">{post.data.summary}</p>
+                )}
+              </div>
+              <div class="post-card__arrow">→</div>
+            </article>
+          ))}
+        </div>
+      </section>
+    )}
+  </div>
+</BaseLayout>
+
+<script>
+  function adjustPostCount() {
+    const postList = document.querySelector('.recent-posts__list') as HTMLElement;
+    const postCards = document.querySelectorAll('.post-card');
+    
+    if (!postList || postCards.length === 0) return;
+    
+    const containerWidth = postList.offsetWidth;
+    const minCardWidth = 300;
+    const gap = 24;
+    
+    const columns = Math.max(1, Math.floor((containerWidth + gap) / (minCardWidth + gap)));
+    const rowsToShow = 2;
+    const cardsToShow = columns * rowsToShow;
+    
+    postCards.forEach((card, index) => {
+      (card as HTMLElement).style.display = index < cardsToShow ? '' : 'none';
+    });
+  }
+  
+  const observer = new ResizeObserver(() => {
+    adjustPostCount();
+  });
+  
+  const postList = document.querySelector('.recent-posts__list');
+  if (postList) {
+    observer.observe(postList);
+    adjustPostCount();
+  }
+  
+  document.addEventListener('astro:page-load', () => {
+    adjustPostCount();
+  });
+</script>
+
+<style>
+  /* ============================================
+   * Intro Section
+   * ============================================ */
+  .intro {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: var(--spacing-3xl) var(--spacing-lg);
+    margin-bottom: var(--spacing-2xl);
+  }
+
+  .intro__decoration {
+    display: none;
+  }
+
+  .intro__content {
+    width: 100%;
+  }
+
+   /* Greeting */
+  .intro__greeting {
+    font-size: var(--font-size-5xl);
+    line-height: 1.1;
+    margin-bottom: var(--spacing-md);
+    text-transform: none;
+  }
+
+  .intro__name {
+    display: inline-block;
+    background-color: var(--accent);
+    color: #000000;
+    padding: 0 var(--spacing-sm);
+    transform: rotate(-1deg);
+    box-shadow: 4px 4px 0 var(--shadow-color);
+  }
+
+   /* Role display */
+  .intro__role {
+    font-family: var(--font-mono);
+    font-size: var(--font-size-xl);
+    color: var(--text-secondary);
+    margin-bottom: var(--spacing-lg);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+  }
+
+  .role-bracket {
+    color: var(--accent-pink);
+    font-weight: 700;
+  }
+
+   /* Description */
+  .intro__desc {
+    font-size: var(--font-size-lg);
+    color: var(--text-secondary);
+    line-height: var(--line-height-relaxed);
+    margin: 0 0 var(--spacing-xl) 0;
+  }
+
+  /* Intro tags */
+  .intro__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+  }
+
+  .intro-tag {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border: 2px solid var(--border-color);
+    background-color: var(--bg-secondary);
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  }
+
+  .intro-tag:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 2px 2px 0 var(--shadow-color);
+  }
+
+
+
+   /* Code decoration block */
+  .code-decoration {
+    font-family: var(--font-mono);
+    font-size: var(--font-size-sm);
+    background-color: var(--bg-secondary);
+    border: var(--border-width) solid var(--border-color);
+    box-shadow: 6px 6px 0 var(--shadow-color);
+    padding: var(--spacing-lg);
+    max-width: 320px;
+    line-height: 1.8;
+  }
+
+  .code-line {
+    display: block;
+  }
+
+  .code-indent {
+    padding-left: var(--spacing-lg);
+  }
+
+  .code-keyword {
+    color: var(--accent-pink);
+    font-weight: 600;
+  }
+
+  .code-key {
+    color: var(--accent-blue);
+  }
+
+  .code-string {
+    color: var(--accent-green);
+  }
+
+  .code-boolean {
+    color: var(--accent-orange);
+  }
+
+  /* ============================================
+   * Recent Posts Section
+   * ============================================ */
+  .recent-posts {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 var(--spacing-lg) var(--spacing-3xl);
+  }
+
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-xl);
+    padding-bottom: var(--spacing-md);
+    border-bottom: var(--border-width) solid var(--border-color);
+  }
+
+  .recent-posts__title {
+    font-size: var(--font-size-2xl);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+  }
+
+  .title-icon {
+    font-size: var(--font-size-xl);
+  }
+
+  .view-all-link {
+    font-family: var(--font-mono);
+    font-size: var(--font-size-sm);
+    text-decoration: none;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border: 2px solid var(--border-color);
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    transition: all var(--transition-fast);
+  }
+
+  .view-all-link:hover {
+    background-color: var(--accent);
+    color: #000000;
+    transform: translate(-2px, -2px);
+    box-shadow: 2px 2px 0 var(--shadow-color);
+  }
+
+  .recent-posts__list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: var(--spacing-lg);
+  }
+
+  /* ============================================
+   * Post Card
+   * ============================================ */
+  .post-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    padding: var(--spacing-lg);
+    border: var(--border-width) solid var(--border-color);
+    background-color: var(--bg-secondary);
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast), background-color var(--transition-fast);
+    cursor: pointer;
+    min-height: 200px;
+  }
+
+  .post-card:hover {
+    transform: translate(-4px, -4px);
+    box-shadow: 8px 8px 0 var(--shadow-color);
+    background-color: var(--bg-primary);
+  }
+
+  .post-card__content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .post-card__meta {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-sm);
+  }
+
+  .post-card__date {
+    font-family: var(--font-mono);
+    font-size: var(--font-size-xs);
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .post-card__tags {
+    display: flex;
+    gap: var(--spacing-xs);
+  }
+
+  .post-tag {
+    font-family: var(--font-mono);
+    font-size: var(--font-size-xs);
+    padding: 2px var(--spacing-xs);
+    font-weight: 600;
+    border-radius: 2px;
+  }
+
+  .post-card__title {
+    margin: 0 0 var(--spacing-xs) 0;
+    font-size: var(--font-size-xl);
+    text-transform: none;
+    line-height: 1.3;
+  }
+
+  .post-card__title a {
+    text-decoration: none;
+    color: var(--text-primary);
+    transition: color var(--transition-fast);
+  }
+
+  .post-card__title a::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+
+  .post-card:hover .post-card__title a {
+    color: var(--accent);
+  }
+
+  .post-card__summary {
+    margin: 0;
+    color: var(--text-secondary);
+    line-height: var(--line-height-normal);
+    font-size: var(--font-size-sm);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .post-card__arrow {
+    align-self: flex-end;
+    margin-top: auto;
+    font-size: var(--font-size-xl);
+    color: var(--text-muted);
+    transition: transform var(--transition-fast), color var(--transition-fast);
+  }
+
+  .post-card:hover .post-card__arrow {
+    transform: translateX(4px);
+    color: var(--accent);
+  }
+
+  /* ============================================
+   * Responsive Design
+   * ============================================ */
+  @media (max-width: 768px) {
+    .intro__greeting {
+      font-size: var(--font-size-4xl);
+    }
+
+    .intro__role {
+      font-size: var(--font-size-lg);
+    }
+
+    .intro__desc {
+      font-size: var(--font-size-base);
+    }
+
+    .section-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: var(--spacing-md);
+    }
+
+    .recent-posts__list {
+      grid-template-columns: 1fr;
+    }
+
+    .post-card__meta {
+      flex-wrap: wrap;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .intro__greeting {
+      font-size: var(--font-size-3xl);
+    }
+
+    .intro__name {
+      transform: none;
+    }
+
+    .intro__tags {
+      gap: var(--spacing-xs);
+    }
+
+    .tech-tag {
+      font-size: 0.65rem;
+    }
+  }
+</style>

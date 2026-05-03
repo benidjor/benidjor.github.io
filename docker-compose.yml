@@ -1,0 +1,20 @@
+# Docker Compose Configuration
+# Run the blog with a single command: docker compose up
+#
+# IMPORTANT: Replace the volume path below with your actual markdown folder.
+#   macOS/Linux: /Users/username/Documents/ObsidianVault
+#   Windows:     C:/Users/username/Documents/ObsidianVault
+#   Linux:       /home/username/Documents/ObsidianVault
+
+services:
+  blog:
+    build: .
+    ports:
+      # Host port 8080 → Container port 8080
+      # Access the blog at http://localhost:8080
+      - "8080:8080"
+    volumes:
+      # Markdown source folder (ro = read-only, original files are never modified)
+      - /path/to/your/markdown-folder:/source:ro
+      # Blog settings file
+      - ./setting.toml:/app/setting.toml:ro

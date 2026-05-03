@@ -1,0 +1,44 @@
+---
+import { getCollection } from 'astro:content';
+import PostLayout from '../../../layouts/PostLayout.astro';
+import { calculateReadingTime } from '../../../utils/readingTime';
+import { isDefaultLangPost, getBaseSlug, getPostLang, getTranslations, getPostUrl } from '../../../utils/i18nRouting';
+
+export async function getStaticPaths() {
+  const allPosts = await getCollection('posts');
+  const translatedPosts = allPosts.filter(p => !isDefaultLangPost(p));
+
+  return translatedPosts.map(post => ({
+    params: {
+      lang: getPostLang(post),
+      slug: getBaseSlug(post.slug),
+    },
+    props: { post, allPosts },
+  }));
+}
+
+const { post, allPosts } = Astro.props;
+const { Content, headings } = await post.render();
+const { title, summary, date, tags, lang } = post.data;
+const readingTime = calculateReadingTime(post.body);
+// 본문에 summary callout이 있으면 상단 description 표시 생략 (중복 방지)
+const hasSummaryCallout = post.body?.includes('callout-summary') ?? false;
+const translations = getTranslations(allPosts, post);
+const base = import.meta.env.BASE_URL;
+const baseUrl = base.endsWith('/') ? base : `${base}/`;
+const currentUrl = getPostUrl(post, baseUrl);
+---
+
+<PostLayout 
+  title={title} 
+  description={hasSummaryCallout ? undefined : summary} 
+  date={date} 
+  tags={tags}
+  headings={headings}
+  readingTime={readingTime}
+  lang={lang}
+  translations={translations.map(t => ({ lang: t.lang, url: getPostUrl(t.post, baseUrl) }))}
+  currentUrl={currentUrl}
+>
+  <Content />
+</PostLayout>

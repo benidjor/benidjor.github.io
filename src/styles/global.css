@@ -1,0 +1,600 @@
+/* ============================================
+ * Multi-Theme Design System
+ * Supported themes: Material, Neo-Brutalism, Glassmorphism
+ * ============================================ */
+
+/* ============================================
+ * CSS Variables - Light Theme (Default)
+ * ============================================ */
+:root,
+[data-theme="light"] {
+  /* Background colors */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f5f5f5;
+  --bg-tertiary: #ebebeb;
+  
+  /* Text colors */
+  --text-primary: #000000;
+  --text-secondary: #333333;
+  --text-muted: #666666;
+  
+  /* Border & Shadow */
+  --border-color: #000000;
+  --shadow-color: #000000;
+  --border-width: 3px;
+  
+  /* Accent colors - Bright colors characteristic of Neo-Brutalism */
+  --accent: #FFE951;
+  --accent-hover: #FFD700;
+  --accent-blue: #8ECAE6;
+  --accent-pink: #FF6B9D;
+  --accent-green: #95D5B2;
+  --accent-orange: #FFB347;
+  
+  /* Layout */
+  --max-width: 1200px;
+  --content-width: 800px;
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  --spacing-2xl: 3rem;
+  --spacing-3xl: 4rem;
+  
+  /* Typography */
+  --font-sans: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'IBM Plex Mono', 'Fira Code', 'Consolas', monospace;
+  --font-display: 'Archivo Black', 'Impact', sans-serif;
+  
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.5rem;
+  --font-size-3xl: 2rem;
+  --font-size-4xl: 2.5rem;
+  --font-size-5xl: 3rem;
+  
+  --line-height-tight: 1.2;
+  --line-height-normal: 1.6;
+  --line-height-relaxed: 1.8;
+  
+  /* Transitions */
+  --transition-fast: 0.1s ease;
+  --transition-normal: 0.2s ease;
+  --transition-slow: 0.3s ease;
+}
+
+/* ============================================
+ * CSS Variables - Dark Theme
+ * ============================================ */
+[data-theme="dark"] {
+  /* Background colors */
+  --bg-primary: #1a1a1a;
+  --bg-secondary: #2d2d2d;
+  --bg-tertiary: #3d3d3d;
+  
+  /* Text colors */
+  --text-primary: #ffffff;
+  --text-secondary: #cccccc;
+  --text-muted: #999999;
+  
+  /* Border & Shadow - Light colors in dark mode */
+  --border-color: #ffffff;
+  --shadow-color: rgba(255, 255, 255, 0.3);
+  
+  /* Accent colors - Maintained consistently in dark mode */
+  --accent: #FFE951;
+  --accent-hover: #FFD700;
+}
+
+/* ============================================
+ * Reset & Base Styles
+ * ============================================ */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+  overflow-y: scroll;
+  visibility: visible;
+}
+
+body {
+  font-family: var(--font-sans);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-normal);
+  color: var(--text-primary);
+  background-color: var(--bg-primary);
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ============================================
+ * Typography
+ * ============================================ */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  font-weight: 900;
+  line-height: var(--line-height-tight);
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+}
+
+h1 { font-size: var(--font-size-5xl); }
+h2 { font-size: var(--font-size-4xl); }
+h3 { font-size: var(--font-size-3xl); }
+h4 { font-size: var(--font-size-2xl); }
+h5 { font-size: var(--font-size-xl); }
+h6 { font-size: var(--font-size-lg); }
+
+p {
+  margin-bottom: var(--spacing-md);
+}
+
+a {
+  color: var(--text-primary);
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+  transition: background-color var(--transition-fast);
+}
+
+a:hover {
+  color: var(--accent);
+}
+
+strong, b {
+  font-weight: 700;
+}
+
+:not(pre) > code {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+  background-color: var(--bg-tertiary);
+  padding: 0.15em 0.35em;
+  border-radius: 4px;
+  color: var(--accent-pink);
+  font-weight: 600;
+}
+
+pre {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-sm);
+  background-color: var(--bg-secondary);
+  padding: var(--spacing-lg);
+  border: var(--border-width) solid var(--border-color);
+  box-shadow: 4px 4px 0 var(--shadow-color);
+  overflow-x: auto;
+  max-width: 100%;
+  margin-bottom: var(--spacing-lg);
+}
+
+pre code {
+  background: none;
+  padding: 0;
+  border: none;
+}
+
+blockquote {
+  border-left: 6px solid var(--accent);
+  padding-left: var(--spacing-lg);
+  margin: var(--spacing-lg) 0;
+  font-style: italic;
+  background-color: var(--bg-secondary);
+  padding: var(--spacing-lg);
+}
+
+/* ============================================
+ * Neo-Brutalism Components
+ * ============================================ */
+
+/* Card */
+.card {
+  background-color: var(--bg-primary);
+  border: var(--border-width) solid var(--border-color);
+  box-shadow: 4px 4px 0 var(--shadow-color);
+  padding: var(--spacing-lg);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.card:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 var(--shadow-color);
+}
+
+/* Button */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-base);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: var(--spacing-sm) var(--spacing-lg);
+  border: var(--border-width) solid var(--border-color);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  cursor: pointer;
+  box-shadow: 4px 4px 0 var(--shadow-color);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  text-decoration: none;
+}
+
+.btn:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 var(--shadow-color);
+  background-color: var(--bg-primary);
+}
+
+.btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--shadow-color);
+}
+
+.btn--primary {
+  background-color: var(--accent);
+  color: #000000;
+}
+
+.btn--primary:hover {
+  background-color: var(--accent-hover);
+}
+
+/* Tag */
+.tag {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border: 2px solid var(--border-color);
+  background-color: var(--bg-secondary);
+  transition: background-color var(--transition-fast);
+}
+
+.tag:hover {
+  background-color: var(--accent);
+}
+
+/* Input Field */
+.input {
+  font-family: var(--font-sans);
+  font-size: var(--font-size-base);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: var(--border-width) solid var(--border-color);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  box-shadow: 4px 4px 0 var(--shadow-color);
+  outline: none;
+  transition: box-shadow var(--transition-fast);
+}
+
+.input:focus {
+  box-shadow: 6px 6px 0 var(--shadow-color);
+}
+
+.input::placeholder {
+  color: var(--text-muted);
+}
+
+/* ============================================
+ * Layout Utilities
+ * ============================================ */
+.container {
+  width: 100%;
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 var(--spacing-lg);
+}
+
+.content-width {
+  max-width: var(--content-width);
+  margin: 0 auto;
+  padding: 0 var(--spacing-lg);
+}
+
+/* ============================================
+ * Callout Styles (Obsidian Compatible)
+ * ============================================ */
+.callout {
+  border: var(--border-width) solid var(--border-color);
+  box-shadow: 4px 4px 0 var(--shadow-color);
+  padding: var(--spacing-lg);
+  margin: var(--spacing-lg) 0;
+  background-color: var(--bg-secondary);
+}
+
+.callout-title {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: var(--font-size-lg);
+  text-transform: uppercase;
+  margin-bottom: var(--spacing-sm);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.callout-content p:last-child {
+  margin-bottom: 0;
+}
+
+/* Callout type-specific colors */
+.callout[data-type="info"] { border-left: 6px solid var(--accent-blue); }
+.callout[data-type="warning"] { border-left: 6px solid var(--accent-orange); }
+.callout[data-type="danger"],
+.callout[data-type="error"] { border-left: 6px solid var(--accent-pink); }
+.callout[data-type="success"],
+.callout[data-type="tip"] { border-left: 6px solid var(--accent-green); }
+.callout[data-type="note"] { border-left: 6px solid var(--accent); }
+
+/* ============================================
+ * Responsive Design (Mobile First)
+ * ============================================ */
+@media (max-width: 768px) {
+  :root {
+    --font-size-5xl: 2.25rem;
+    --font-size-4xl: 1.875rem;
+    --font-size-3xl: 1.5rem;
+    --font-size-2xl: 1.25rem;
+  }
+  
+  .container {
+    padding: 0 var(--spacing-md);
+  }
+  
+  .card {
+    box-shadow: 3px 3px 0 var(--shadow-color);
+  }
+  
+  .card:hover {
+    transform: none;
+    box-shadow: 3px 3px 0 var(--shadow-color);
+  }
+  
+  .btn {
+    box-shadow: 3px 3px 0 var(--shadow-color);
+  }
+  
+  .btn:hover {
+    transform: none;
+    box-shadow: 3px 3px 0 var(--shadow-color);
+  }
+}
+
+/* ============================================
+ * Scrollbar Styles
+ * ============================================ */
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+  border: 2px solid var(--border-color);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--text-primary);
+  border: 2px solid var(--border-color);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+}
+
+/* ============================================
+ * Selection Styles
+ * ============================================ */
+::selection {
+  background-color: var(--accent);
+  color: #000000;
+}
+
+/* ============================================
+ * Focus Styles (Accessibility)
+ * ============================================ */
+:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ============================================
+ * Animations
+ * ============================================ */
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-slide-up {
+  animation: slideUp 0.4s ease forwards;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease forwards;
+}
+
+/* Staggered animation delays */
+.stagger-1 { animation-delay: 0.1s; }
+.stagger-2 { animation-delay: 0.2s; }
+.stagger-3 { animation-delay: 0.3s; }
+.stagger-4 { animation-delay: 0.4s; }
+.stagger-5 { animation-delay: 0.5s; }
+
+/* ============================================
+ * Design Theme: Neo-Brutalism (Default)
+ * ============================================ */
+:root,
+[data-design-theme="neo-brutalism"] {
+  --border-width: 3px;
+  --radius: 0;
+  --shadow-offset: 4px;
+  --card-shadow: var(--shadow-offset) var(--shadow-offset) 0 var(--shadow-color);
+  --card-hover-shadow: 6px 6px 0 var(--shadow-color);
+  --backdrop-blur: none;
+  --surface-opacity: 1;
+}
+
+/* ============================================
+ * Design Theme: Material
+ * ============================================ */
+[data-design-theme="material"] {
+  --border-width: 1px;
+  --radius: 8px;
+  --shadow-offset: 0;
+  --card-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), 0 4px 8px rgba(0, 0, 0, 0.1);
+  --card-hover-shadow: 0 4px 8px rgba(0, 0, 0, 0.15), 0 8px 16px rgba(0, 0, 0, 0.1);
+  --backdrop-blur: none;
+  --surface-opacity: 1;
+  
+  --accent: #6750A4;
+  --accent-hover: #7965AF;
+}
+
+[data-design-theme="material"][data-theme="dark"] {
+  --card-shadow: 0 2px 4px rgba(0, 0, 0, 0.3), 0 4px 8px rgba(0, 0, 0, 0.2);
+  --card-hover-shadow: 0 4px 8px rgba(0, 0, 0, 0.4), 0 8px 16px rgba(0, 0, 0, 0.3);
+  --accent: #D0BCFF;
+  --accent-hover: #E8DEF8;
+}
+
+/* ============================================
+ * Design Theme: Glassmorphism
+ * ============================================ */
+[data-design-theme="glassmorphism"] {
+  --border-width: 1px;
+  --radius: 16px;
+  --shadow-offset: 0;
+  --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  --card-hover-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+  --backdrop-blur: blur(12px);
+  --surface-opacity: 0.7;
+  
+  --border-color: rgba(255, 255, 255, 0.3);
+  --accent: #667eea;
+  --accent-hover: #764ba2;
+}
+
+[data-design-theme="glassmorphism"][data-theme="dark"] {
+  --border-color: rgba(255, 255, 255, 0.15);
+  --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  --card-hover-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+}
+
+/* ============================================
+ * Theme-Specific Component Overrides
+ * ============================================ */
+
+/* Material theme card */
+[data-design-theme="material"] .card {
+  border-radius: var(--radius);
+  border-width: var(--border-width);
+  box-shadow: var(--card-shadow);
+}
+
+[data-design-theme="material"] .card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--card-hover-shadow);
+}
+
+[data-design-theme="material"] .btn {
+  border-radius: var(--radius);
+  border-width: var(--border-width);
+  box-shadow: var(--card-shadow);
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+[data-design-theme="material"] .btn:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--card-hover-shadow);
+}
+
+[data-design-theme="material"] .tag {
+  border-radius: 16px;
+  border-width: 1px;
+}
+
+/* Glassmorphism theme card */
+[data-design-theme="glassmorphism"] .card {
+  border-radius: var(--radius);
+  border-width: var(--border-width);
+  background-color: rgba(255, 255, 255, var(--surface-opacity));
+  backdrop-filter: var(--backdrop-blur);
+  -webkit-backdrop-filter: var(--backdrop-blur);
+  box-shadow: var(--card-shadow);
+}
+
+[data-design-theme="glassmorphism"][data-theme="dark"] .card {
+  background-color: rgba(45, 45, 45, var(--surface-opacity));
+}
+
+[data-design-theme="glassmorphism"] .card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--card-hover-shadow);
+}
+
+[data-design-theme="glassmorphism"] .btn {
+  border-radius: var(--radius);
+  border-width: var(--border-width);
+  background-color: rgba(255, 255, 255, 0.5);
+  backdrop-filter: var(--backdrop-blur);
+  -webkit-backdrop-filter: var(--backdrop-blur);
+  box-shadow: var(--card-shadow);
+  text-transform: none;
+}
+
+[data-design-theme="glassmorphism"][data-theme="dark"] .btn {
+  background-color: rgba(60, 60, 60, 0.5);
+}
+
+[data-design-theme="glassmorphism"] .btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--card-hover-shadow);
+  background-color: rgba(255, 255, 255, 0.7);
+}
+
+[data-design-theme="glassmorphism"][data-theme="dark"] .btn:hover {
+  background-color: rgba(80, 80, 80, 0.7);
+}
+
+[data-design-theme="glassmorphism"] .tag {
+  border-radius: 20px;
+  border-width: 1px;
+  background-color: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+[data-design-theme="glassmorphism"][data-theme="dark"] .tag {
+  background-color: rgba(60, 60, 60, 0.4);
+}

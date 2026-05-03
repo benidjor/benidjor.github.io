@@ -1,0 +1,282 @@
+---
+import { t } from '../i18n';
+
+const base = import.meta.env.BASE_URL;
+const baseUrl = base.endsWith('/') ? base : `${base}/`;
+---
+
+<div id="search-modal" class="search-modal" aria-hidden="true">
+  <div class="search-modal__backdrop"></div>
+  <div class="search-modal__content">
+    <div class="search-modal__header">
+      <h2 class="search-modal__title">{t('search')}</h2>
+      <button id="search-close" class="search-modal__close" aria-label={t('closeSearch')}>
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+    <div id="search" data-base-url={baseUrl}></div>
+  </div>
+</div>
+
+<button id="search-trigger" class="search-trigger" aria-label={t('openSearch')}>
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+    <circle cx="11" cy="11" r="8"></circle>
+    <path d="m21 21-4.35-4.35"></path>
+  </svg>
+  <span class="search-trigger__shortcut">⌘K</span>
+</button>
+
+<script>
+  // Pagefind UI 초기화 (클라이언트 사이드에서만 실행)
+  if (typeof window !== 'undefined') {
+    // data attribute에서 baseUrl 읽기
+    const searchEl = document.getElementById('search');
+    const baseUrl = searchEl?.dataset.baseUrl || '/';
+
+    // Pagefind UI 동적 로드
+    const loadPagefind = async () => {
+      // @ts-ignore - Pagefind는 빌드 후 생성되므로 타입 체크 무시
+      const { PagefindUI } = await import('@pagefind/default-ui');
+      
+      new PagefindUI({
+        element: '#search',
+        basePath: baseUrl + 'pagefind/',
+        showSubResults: true,
+        showImages: false,
+        excerptLength: 15,
+      });
+    };
+
+    // 모달 열기/닫기 로직
+    const modal = document.getElementById('search-modal');
+    const trigger = document.getElementById('search-trigger');
+    const closeBtn = document.getElementById('search-close');
+    const backdrop = modal?.querySelector('.search-modal__backdrop');
+
+    const openModal = () => {
+      if (!modal) return;
+      modal.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+      
+      // Pagefind UI 로드 (처음 열 때만)
+      if (!modal.dataset.loaded) {
+        loadPagefind();
+        modal.dataset.loaded = 'true';
+      }
+      
+      // 검색 입력창에 포커스
+      setTimeout(() => {
+        const input = modal.querySelector('input[type="text"]');
+        input?.focus();
+      }, 100);
+    };
+
+    const closeModal = () => {
+      if (!modal) return;
+      modal.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+    };
+
+    // 이벤트 리스너
+    trigger?.addEventListener('click', openModal);
+    closeBtn?.addEventListener('click', closeModal);
+    backdrop?.addEventListener('click', closeModal);
+
+    // Cmd/Ctrl + K 단축키
+    document.addEventListener('keydown', (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        openModal();
+      }
+      
+      // ESC로 닫기
+      if (e.key === 'Escape' && modal?.getAttribute('aria-hidden') === 'false') {
+        closeModal();
+      }
+    });
+  }
+</script>
+
+<style>
+  /* 검색 트리거 버튼 */
+  .search-trigger {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-sm) var(--spacing-md);
+    background-color: var(--bg-secondary);
+    border: var(--border-width) solid var(--border-color);
+    color: var(--text-primary);
+    font-family: var(--font-mono);
+    font-size: var(--font-size-sm);
+    cursor: pointer;
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast), background-color var(--transition-fast);
+    box-shadow: 2px 2px 0 var(--shadow-color);
+  }
+
+  .search-trigger:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 4px 4px 0 var(--shadow-color);
+    background-color: var(--accent);
+  }
+
+  .search-trigger__shortcut {
+    padding: 2px 6px;
+    background-color: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  /* 검색 모달 */
+  .search-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1000;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 10vh;
+    opacity: 1;
+    visibility: visible;
+    transition: opacity var(--transition-normal), visibility var(--transition-normal);
+  }
+
+  .search-modal[aria-hidden="true"] {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  .search-modal__backdrop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+  }
+
+  .search-modal__content {
+    position: relative;
+    width: 90%;
+    max-width: 600px;
+    max-height: 80vh;
+    background-color: var(--bg-primary);
+    border: var(--border-width) solid var(--border-color);
+    box-shadow: 8px 8px 0 var(--shadow-color);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .search-modal__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--spacing-md);
+    border-bottom: var(--border-width) solid var(--border-color);
+    background-color: var(--bg-secondary);
+  }
+
+  .search-modal__title {
+    font-family: var(--font-display);
+    font-size: var(--font-size-xl);
+    margin: 0;
+  }
+
+  .search-modal__close {
+    padding: var(--spacing-xs);
+    background-color: transparent;
+    border: 2px solid transparent;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: border-color var(--transition-fast), background-color var(--transition-fast);
+  }
+
+  .search-modal__close:hover {
+    border-color: var(--border-color);
+    background-color: var(--accent);
+  }
+
+  #search {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--spacing-md);
+  }
+
+  /* Pagefind UI 커스터마이징 */
+  :global(#search) {
+    --pagefind-ui-scale: 1;
+    --pagefind-ui-primary: var(--accent);
+    --pagefind-ui-text: var(--text-primary);
+    --pagefind-ui-background: var(--bg-primary);
+    --pagefind-ui-border: var(--border-color);
+    --pagefind-ui-tag: var(--bg-secondary);
+    --pagefind-ui-border-width: 3px;
+    --pagefind-ui-border-radius: 0;
+    --pagefind-ui-image-border-radius: 0;
+    --pagefind-ui-font: var(--font-sans);
+  }
+
+  /* Pagefind 검색 결과 스타일 오버라이드 */
+  :global(.pagefind-ui__result) {
+    border: var(--border-width) solid var(--border-color) !important;
+    box-shadow: 3px 3px 0 var(--shadow-color) !important;
+    margin-bottom: var(--spacing-md) !important;
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast) !important;
+  }
+
+  :global(.pagefind-ui__result:hover) {
+    transform: translate(-2px, -2px) !important;
+    box-shadow: 5px 5px 0 var(--shadow-color) !important;
+  }
+
+  :global(.pagefind-ui__result-title) {
+    font-family: var(--font-sans) !important;
+    font-weight: 700 !important;
+  }
+
+  :global(.pagefind-ui__search-input) {
+    font-family: var(--font-mono) !important;
+    border: var(--border-width) solid var(--border-color) !important;
+    box-shadow: 2px 2px 0 var(--shadow-color) !important;
+  }
+
+  :global(.pagefind-ui__search-input:focus) {
+    outline: none !important;
+    box-shadow: 4px 4px 0 var(--shadow-color) !important;
+  }
+
+  @media (max-width: 768px) {
+    .search-modal {
+      padding-top: 5vh;
+    }
+
+    .search-modal__content {
+      width: 95%;
+      max-height: 90vh;
+    }
+
+    .search-trigger {
+      padding: var(--spacing-xs);
+    }
+
+    .search-trigger svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .search-trigger__shortcut {
+      display: none;
+    }
+  }
+</style>

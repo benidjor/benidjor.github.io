@@ -1,0 +1,33 @@
+---
+interface GoatCounterConfig {
+  site_code: string;
+  show_view_count: boolean;
+}
+
+interface AnalyticsConfig {
+  enabled: boolean;
+  provider: string;
+  goatcounter?: GoatCounterConfig;
+}
+
+const analytics = import.meta.env.ANALYTICS as AnalyticsConfig;
+const isEnabled = analytics?.enabled && analytics?.provider === 'goatcounter';
+const goatcounter = analytics?.goatcounter;
+const isConfigured = isEnabled && goatcounter?.site_code;
+const isDev = import.meta.env.DEV;
+---
+
+{isConfigured && goatcounter && (
+  <script
+    is:inline
+    data-goatcounter={`https://${goatcounter.site_code}.goatcounter.com/count`}
+    async
+    src="//gc.zgo.at/count.js"
+  ></script>
+)}
+
+{!isConfigured && isDev && analytics?.enabled && (
+  <script is:inline>
+    console.warn('[Analytics] GoatCounter site_code is not configured in setting.toml');
+  </script>
+)}

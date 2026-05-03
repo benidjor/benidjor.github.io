@@ -1,0 +1,30 @@
+---
+interface Props {
+  title: string;
+  description: string;
+  image?: string;
+  canonicalURL?: string;
+}
+
+const { title, description, image, canonicalURL } = Astro.props;
+---
+
+<!-- 기본 메타태그 -->
+<title>{title}</title>
+<meta name="description" content={description} />
+
+<!-- Canonical URL -->
+{canonicalURL && <link rel="canonical" href={canonicalURL} />}
+
+<!-- Open Graph 메타태그 -->
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+{image && <meta property="og:image" content={image} />}
+{canonicalURL && <meta property="og:url" content={canonicalURL} />}
+<meta property="og:type" content="website" />
+
+<!-- Twitter Card 메타태그 -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+{image && <meta name="twitter:image" content={image} />}

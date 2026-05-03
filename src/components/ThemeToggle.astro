@@ -1,0 +1,131 @@
+---
+import { t } from '../i18n';
+---
+
+<button
+  id="theme-toggle"
+  class="theme-toggle"
+  type="button"
+  aria-label={t('themeToggle')}
+  title={t('themeToggle')}
+  data-label-light={t('switchToLight')}
+  data-label-dark={t('switchToDark')}
+>
+  <!-- 라이트 모드일 때: 해 아이콘 (클릭하면 다크 모드로) -->
+  <span class="theme-toggle__icon theme-toggle__icon--sun" aria-hidden="true">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </span>
+  <!-- 다크 모드일 때: 달 아이콘 (클릭하면 라이트 모드로) -->
+  <span class="theme-toggle__icon theme-toggle__icon--moon" aria-hidden="true">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+    </svg>
+  </span>
+</button>
+
+<script>
+  const themeToggle = document.getElementById('theme-toggle') as HTMLButtonElement | null;
+  const labelLight = themeToggle?.dataset.labelLight || 'Switch to light mode';
+  const labelDark = themeToggle?.dataset.labelDark || 'Switch to dark mode';
+
+  function setTheme(theme: string) {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+    const label = theme === 'dark' ? labelLight : labelDark;
+    themeToggle?.setAttribute('aria-label', label);
+
+    // Sync Giscus theme
+    const giscusFrame = document.querySelector<HTMLIFrameElement>('iframe.giscus-frame');
+    giscusFrame?.contentWindow?.postMessage(
+      { giscus: { setConfig: { theme: theme === 'dark' ? 'dark' : 'light' } } },
+      'https://giscus.app',
+    );
+  }
+
+  const initialTheme = document.documentElement.getAttribute('data-theme');
+  const initialLabel = initialTheme === 'dark' ? labelLight : labelDark;
+  themeToggle?.setAttribute('aria-label', initialLabel);
+
+  themeToggle?.addEventListener('click', () => {
+    const currentTheme = document.documentElement.getAttribute('data-theme');
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    setTheme(newTheme);
+  });
+</script>
+
+<style>
+  .theme-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border: 2px solid var(--border-color);
+    border-radius: 50%;
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: background-color var(--transition-normal), transform var(--transition-fast), box-shadow var(--transition-fast);
+  }
+
+  .theme-toggle:hover {
+    background-color: var(--accent);
+    transform: scale(1.08);
+    box-shadow: 3px 3px 0 var(--shadow-color);
+  }
+
+  .theme-toggle:active {
+    transform: scale(0.95);
+    box-shadow: 1px 1px 0 var(--shadow-color);
+  }
+
+  .theme-toggle:focus-visible {
+    outline: 3px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .theme-toggle__icon {
+    display: none;
+    line-height: 0;
+  }
+
+  .theme-toggle__icon svg {
+    transition: transform 0.3s ease;
+  }
+
+  .theme-toggle:hover .theme-toggle__icon svg {
+    transform: rotate(20deg);
+  }
+
+  :global([data-theme="light"]) .theme-toggle__icon--sun {
+    display: block;
+  }
+
+  :global([data-theme="dark"]) .theme-toggle__icon--moon {
+    display: block;
+  }
+
+  /* 모바일에서 버튼 크기 축소 */
+  @media (max-width: 768px) {
+    .theme-toggle {
+      width: 36px;
+      height: 36px;
+    }
+
+    .theme-toggle__icon svg {
+      width: 18px;
+      height: 18px;
+    }
+  }
+</style>

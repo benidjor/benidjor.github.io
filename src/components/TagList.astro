@@ -1,0 +1,55 @@
+---
+import { getTagStyle } from '../utils/tagColor';
+
+interface Props {
+  tags: string[];
+  showCount?: boolean;
+  tagCounts?: Record<string, number>;
+}
+
+const { tags, showCount = false, tagCounts = {} } = Astro.props;
+
+const base = import.meta.env.BASE_URL;
+const baseUrl = base.endsWith('/') ? base : `${base}/`;
+---
+
+<div class="tag-list">
+  {tags.map((tag) => (
+    <a href={`${baseUrl}tags/${tag.toLowerCase()}`} class="tag" style={getTagStyle(tag)}>
+      {tag}
+      {showCount && tagCounts[tag] && (
+        <span class="tag__count">({tagCounts[tag]})</span>
+      )}
+    </a>
+  ))}
+</div>
+
+<style>
+  .tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-md);
+  }
+
+  .tag {
+    display: inline-block;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    text-decoration: none;
+    border: 2px solid;
+    box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.15);
+    font-weight: 600;
+    font-size: var(--font-size-sm);
+    text-transform: lowercase;
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  }
+
+  .tag:hover {
+    transform: translate(-1px, -1px);
+    box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.25);
+  }
+
+  .tag__count {
+    margin-left: var(--spacing-xs);
+    opacity: 0.8;
+  }
+</style>

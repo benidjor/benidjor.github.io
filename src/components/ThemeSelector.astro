@@ -1,0 +1,289 @@
+---
+import { t } from '../i18n';
+---
+
+<div class="theme-selector">
+  <button
+    id="theme-selector-toggle"
+    class="theme-selector__toggle"
+    type="button"
+    aria-haspopup="listbox"
+    aria-expanded="false"
+    aria-label={t('selectDesignTheme')}
+    title={t('designTheme')}
+  >
+    <span class="theme-selector__label" id="current-design-theme">{t('neoBrutalism')}</span>
+    <span class="theme-selector__arrow" aria-hidden="true">▼</span>
+  </button>
+
+  <ul
+    id="theme-selector-menu"
+    class="theme-selector__menu"
+    role="listbox"
+    aria-label={t('designThemeList')}
+  >
+    <li
+      class="theme-selector__option"
+      role="option"
+      data-design-theme="material"
+      tabindex="0"
+    >
+      <span class="theme-selector__option-icon">○</span>
+      <span class="theme-selector__option-name">{t('material')}</span>
+      <span class="theme-selector__option-desc">{t('materialDesc')}</span>
+    </li>
+    <li
+      class="theme-selector__option"
+      role="option"
+      data-design-theme="neo-brutalism"
+      tabindex="0"
+      aria-selected="true"
+    >
+      <span class="theme-selector__option-icon">●</span>
+      <span class="theme-selector__option-name">{t('neoBrutalism')}</span>
+      <span class="theme-selector__option-desc">{t('neoBrutalismDesc')}</span>
+    </li>
+    <li
+      class="theme-selector__option"
+      role="option"
+      data-design-theme="glassmorphism"
+      tabindex="0"
+    >
+      <span class="theme-selector__option-icon">○</span>
+      <span class="theme-selector__option-name">{t('glassmorphism')}</span>
+      <span class="theme-selector__option-desc">{t('glassmorphismDesc')}</span>
+    </li>
+  </ul>
+</div>
+
+<script>
+  const toggle = document.getElementById('theme-selector-toggle');
+  const menu = document.getElementById('theme-selector-menu');
+  const label = document.getElementById('current-design-theme');
+  const options = menu?.querySelectorAll('.theme-selector__option');
+
+  function getCurrentDesignTheme(): string {
+    return localStorage.getItem('design-theme') || 'neo-brutalism';
+  }
+
+  function getThemeDisplayName(theme: string): string {
+    const option = menu?.querySelector(`[data-design-theme="${theme}"]`);
+    return option?.querySelector('.theme-selector__option-name')?.textContent || theme;
+  }
+
+  function setDesignTheme(theme: string) {
+    document.documentElement.setAttribute('data-design-theme', theme);
+    localStorage.setItem('design-theme', theme);
+
+    if (label) label.textContent = getThemeDisplayName(theme);
+
+    options?.forEach(option => {
+      const optionTheme = (option as HTMLElement).dataset.designTheme;
+      const isSelected = optionTheme === theme;
+      option.setAttribute('aria-selected', isSelected ? 'true' : 'false');
+
+      const icon = option.querySelector('.theme-selector__option-icon');
+      if (icon) icon.textContent = isSelected ? '●' : '○';
+    });
+  }
+
+  function toggleMenu(open?: boolean) {
+    const isOpen = open ?? menu?.classList.contains('theme-selector__menu--open') === false;
+    menu?.classList.toggle('theme-selector__menu--open', isOpen);
+    toggle?.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+  }
+
+  function closeMenu() {
+    menu?.classList.remove('theme-selector__menu--open');
+    toggle?.setAttribute('aria-expanded', 'false');
+  }
+
+  const initialTheme = getCurrentDesignTheme();
+  setDesignTheme(initialTheme);
+
+  toggle?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggleMenu();
+  });
+
+  options?.forEach(option => {
+    option.addEventListener('click', () => {
+      const theme = (option as HTMLElement).dataset.designTheme;
+      if (theme) {
+        setDesignTheme(theme);
+        closeMenu();
+      }
+    });
+
+    option.addEventListener('keydown', (event) => {
+      const e = event as KeyboardEvent;
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        const theme = (option as HTMLElement).dataset.designTheme;
+        if (theme) {
+          setDesignTheme(theme);
+          closeMenu();
+        }
+      }
+    });
+  });
+
+  document.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement;
+    if (!target.closest('.theme-selector')) {
+      closeMenu();
+    }
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeMenu();
+    }
+  });
+</script>
+
+<style>
+  .theme-selector {
+    position: relative;
+  }
+
+  .theme-selector__toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-sm);
+    width: 140px;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius, 0);
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color var(--transition-normal), transform var(--transition-fast);
+  }
+
+  .theme-selector__toggle:hover {
+    background-color: var(--accent);
+    color: #000000;
+  }
+
+  .theme-selector__toggle:hover .theme-selector__arrow {
+    color: #000000;
+  }
+
+  .theme-selector__label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .theme-selector__arrow {
+    font-size: 10px;
+    transition: transform var(--transition-fast);
+  }
+
+  .theme-selector__toggle[aria-expanded="true"] .theme-selector__arrow {
+    transform: rotate(180deg);
+  }
+
+  .theme-selector__menu {
+    position: absolute;
+    top: calc(100% + 4px);
+    right: 0;
+    min-width: 220px;
+    padding: var(--spacing-xs);
+    border: 2px solid var(--border-color);
+    background-color: var(--bg-primary);
+    box-shadow: 4px 4px 0 var(--shadow-color);
+    list-style: none;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px);
+    transition: opacity var(--transition-fast), transform var(--transition-fast), visibility var(--transition-fast);
+    z-index: 200;
+  }
+
+  .theme-selector__menu--open {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+
+  .theme-selector__option {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: var(--spacing-sm);
+    cursor: pointer;
+    transition: background-color var(--transition-fast);
+  }
+
+  .theme-selector__option:hover,
+  .theme-selector__option:focus {
+    background-color: var(--accent);
+    outline: none;
+  }
+
+  .theme-selector__option:hover .theme-selector__option-name,
+  .theme-selector__option:focus .theme-selector__option-name,
+  .theme-selector__option:hover .theme-selector__option-desc,
+  .theme-selector__option:focus .theme-selector__option-desc,
+  .theme-selector__option:hover .theme-selector__option-icon,
+  .theme-selector__option:focus .theme-selector__option-icon {
+    color: #000000;
+  }
+
+  .theme-selector__option[aria-selected="true"] {
+    background-color: var(--bg-secondary);
+  }
+
+  .theme-selector__option[aria-selected="true"]:hover,
+  .theme-selector__option[aria-selected="true"]:focus {
+    background-color: var(--accent);
+  }
+
+  .theme-selector__option[aria-selected="true"]:hover .theme-selector__option-name,
+  .theme-selector__option[aria-selected="true"]:focus .theme-selector__option-name,
+  .theme-selector__option[aria-selected="true"]:hover .theme-selector__option-desc,
+  .theme-selector__option[aria-selected="true"]:focus .theme-selector__option-desc,
+  .theme-selector__option[aria-selected="true"]:hover .theme-selector__option-icon,
+  .theme-selector__option[aria-selected="true"]:focus .theme-selector__option-icon {
+    color: #000000;
+  }
+
+  .theme-selector__option-icon {
+    position: absolute;
+    right: var(--spacing-sm);
+    font-size: 12px;
+  }
+
+  .theme-selector__option-name {
+    font-weight: 700;
+    font-size: var(--font-size-sm);
+  }
+
+  .theme-selector__option-desc {
+    font-size: var(--font-size-xs);
+    color: var(--text-muted);
+  }
+
+  /* 모바일에서 라벨 숨김 및 버튼 크기 축소 */
+  @media (max-width: 768px) {
+    .theme-selector__toggle {
+      width: 36px;
+      padding: var(--spacing-xs);
+      justify-content: center;
+    }
+
+    .theme-selector__label {
+      display: none;
+    }
+
+    .theme-selector__arrow {
+      margin: 0;
+    }
+  }
+</style>

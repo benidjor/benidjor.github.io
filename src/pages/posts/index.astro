@@ -1,0 +1,154 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getTagStyle } from '../../utils/tagColor';
+import { t } from '../../i18n';
+import { getPostsForLocale, getPostUrl } from '../../utils/i18nRouting';
+
+const base = import.meta.env.BASE_URL;
+const baseUrl = base.endsWith('/') ? base : `${base}/`;
+const dateLocale = t('dateLocale');
+
+const allPosts = await getCollection('posts');
+const posts = getPostsForLocale(allPosts)
+  .sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime());
+---
+
+<BaseLayout title={t('postsPageTitle')} description={t('postsPageTitle')}>
+  <div class="container">
+    <div class="posts-page">
+      <h1 class="posts-page__title">{t('posts')}</h1>
+      <p class="posts-page__subtitle">{t('postsPageSubtitle', { count: posts.length })}</p>
+
+      <div class="posts-list">
+        {posts.map((post) => (
+          <article class="post-card">
+            <h2 class="post-card__title">
+              <a href={getPostUrl(post, baseUrl)}>{post.data.title}</a>
+            </h2>
+            <p class="post-card__date">
+              {new Date(post.data.date).toLocaleDateString(dateLocale, {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+              })}
+            </p>
+            {post.data.summary && (
+              <p class="post-card__summary">{post.data.summary}</p>
+            )}
+            {post.data.tags && post.data.tags.length > 0 && (
+              <div class="post-card__tags">
+                {post.data.tags.map((tag: string) => (
+                  <a href={`${baseUrl}tags/${tag.toLowerCase()}`} class="post-card__tag" style={getTagStyle(tag)}>
+                    {tag}
+                  </a>
+                ))}
+              </div>
+            )}
+          </article>
+        ))}
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .posts-page {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 var(--spacing-lg);
+  }
+
+  .posts-page__title {
+    font-family: var(--font-display);
+    font-size: var(--font-size-4xl);
+    font-weight: 900;
+    margin: 0 0 var(--spacing-md) 0;
+    text-transform: uppercase;
+  }
+
+  .posts-page__subtitle {
+    font-size: var(--font-size-lg);
+    color: var(--text-secondary);
+    margin: 0 0 var(--spacing-2xl) 0;
+  }
+
+  .posts-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+  }
+
+  .post-card {
+    position: relative;
+    padding: var(--spacing-lg);
+    border: var(--border-width) solid var(--border-color);
+    background-color: var(--bg-secondary);
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+    cursor: pointer;
+  }
+
+  .post-card:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 4px 4px 0 var(--shadow-color);
+  }
+
+  .post-card__title {
+    margin: 0 0 var(--spacing-sm) 0;
+    font-size: var(--font-size-xl);
+  }
+
+  .post-card__title a {
+    text-decoration: none;
+    color: var(--text-primary);
+    transition: color var(--transition-fast);
+  }
+
+  .post-card__title a::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+  }
+
+  .post-card:hover .post-card__title a {
+    color: var(--accent);
+  }
+
+  .post-card__date {
+    margin: 0 0 var(--spacing-md) 0;
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+  }
+
+  .post-card__summary {
+    margin: 0 0 var(--spacing-md) 0;
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+
+  .post-card__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-md);
+  }
+
+  .post-card__tag {
+    position: relative;
+    z-index: 2;
+    display: inline-block;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    text-decoration: none;
+    border: 2px solid;
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    text-transform: lowercase;
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  }
+
+  .post-card__tag:hover {
+    transform: translate(-1px, -1px);
+    box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
+  }
+</style>

@@ -1,0 +1,57 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import TagList from '../../components/TagList.astro';
+import { t } from '../../i18n';
+import { getPostsForLocale } from '../../utils/i18nRouting';
+
+const allPosts = await getCollection('posts');
+const posts = getPostsForLocale(allPosts);
+const allTags = [...new Set(posts.flatMap((post) => post.data.tags || []))].sort();
+
+const tagCounts: Record<string, number> = {};
+allTags.forEach((tag) => {
+  tagCounts[tag] = posts.filter((post) => post.data.tags?.includes(tag)).length;
+});
+---
+
+<BaseLayout title={t('tagsPageTitle')} description={t('tagsPageTitle')}>
+  <div class="container">
+    <div class="tags-page">
+      <h1 class="tags-page__title">{t('tags')}</h1>
+      <p class="tags-page__subtitle">{t('tagsPageSubtitle', { count: allTags.length })}</p>
+
+      <div class="tags-page__content">
+        <TagList tags={allTags} showCount={true} tagCounts={tagCounts} />
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .tags-page {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 var(--spacing-lg);
+  }
+
+  .tags-page__title {
+    font-family: var(--font-display);
+    font-size: var(--font-size-4xl);
+    font-weight: 900;
+    margin: 0 0 var(--spacing-md) 0;
+    text-transform: uppercase;
+  }
+
+  .tags-page__subtitle {
+    font-size: var(--font-size-lg);
+    color: var(--text-secondary);
+    margin: 0 0 var(--spacing-2xl) 0;
+  }
+
+  .tags-page__content {
+    padding: var(--spacing-xl);
+    border: var(--border-width) solid var(--border-color);
+    background-color: var(--bg-secondary);
+  }
+</style>

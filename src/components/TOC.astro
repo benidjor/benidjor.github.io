@@ -1,0 +1,273 @@
+---
+import { t } from '../i18n';
+
+interface Heading {
+  depth: number;
+  slug: string;
+  text: string;
+}
+
+interface Props {
+  headings: Heading[];
+}
+
+const { headings } = Astro.props;
+
+const filteredHeadings = headings.filter(h => h.depth >= 2 && h.depth <= 3);
+---
+
+{filteredHeadings.length > 0 && (
+  <aside class="toc" data-toc>
+    <button class="toc__toggle" data-toc-toggle aria-label={t('toggleToc')}>
+      <span class="toc__toggle-icon" data-toc-icon>
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+      </span>
+      <span class="toc__toggle-text">{t('tableOfContents')}</span>
+    </button>
+    
+    <nav class="toc__nav" data-toc-nav>
+      <ul class="toc__list">
+        {filteredHeadings.map((heading) => (
+          <li class={`toc__item toc__item--depth-${heading.depth}`}>
+            <a 
+              href={`#${heading.slug}`} 
+              class="toc__link"
+              data-toc-link={heading.slug}
+            >
+              {heading.text}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  </aside>
+)}
+
+<style>
+  .toc {
+    position: fixed;
+    top: 120px;
+    right: var(--spacing-lg);
+    z-index: 100;
+    width: 280px;
+    max-height: calc(100vh - 140px);
+  }
+  
+  .toc__toggle {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    font-family: var(--font-sans);
+    font-size: var(--font-size-sm);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: var(--border-width) solid var(--border-color);
+    background-color: var(--accent);
+    color: #000000;
+    cursor: pointer;
+    box-shadow: 4px 4px 0 var(--shadow-color);
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+    width: 100%;
+    justify-content: flex-start;
+  }
+  
+  .toc__toggle:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0 var(--shadow-color);
+  }
+  
+  .toc__toggle:active {
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0 var(--shadow-color);
+  }
+  
+  .toc__toggle-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform var(--transition-normal);
+  }
+  
+  /* 접힌 상태 아이콘 회전 */
+  .toc[data-collapsed="true"] .toc__toggle-icon {
+    transform: rotate(90deg);
+  }
+  
+  .toc__nav {
+    margin-top: var(--spacing-sm);
+    background-color: var(--bg-primary);
+    border: var(--border-width) solid var(--border-color);
+    box-shadow: 4px 4px 0 var(--shadow-color);
+    overflow-y: auto;
+    max-height: calc(70vh - 60px);
+    transition: opacity var(--transition-normal), visibility var(--transition-normal);
+  }
+  
+  /* 접힌 상태 */
+  .toc[data-collapsed="true"] .toc__nav {
+    opacity: 0;
+    visibility: hidden;
+    height: 0;
+    margin-top: 0;
+    border: none;
+    box-shadow: none;
+  }
+  
+  .toc__list {
+    list-style: none;
+    padding: var(--spacing-sm);
+    margin: 0;
+  }
+  
+  .toc__item {
+    margin: 0;
+  }
+  
+  .toc__item--depth-3 {
+    padding-left: var(--spacing-md);
+  }
+  
+  .toc__link {
+    display: block;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+    text-decoration: none;
+    border-left: 3px solid transparent;
+    transition: all var(--transition-fast);
+    line-height: var(--line-height-normal);
+  }
+  
+  .toc__link:hover {
+    color: var(--text-primary);
+    background-color: var(--bg-secondary);
+    border-left-color: var(--accent);
+  }
+  
+  /* 현재 활성 섹션 */
+  .toc__link[data-active="true"] {
+    color: #000000;
+    background-color: var(--accent);
+    border-left-color: var(--border-color);
+    font-weight: 700;
+  }
+  
+  @media (max-width: 1200px) {
+    .toc {
+      right: var(--spacing-md);
+      width: 240px;
+    }
+  }
+  
+  @media (max-width: 1024px) {
+    .toc {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  // TOC 초기화 함수
+  function initTOC() {
+    const toc = document.querySelector('[data-toc]') as HTMLElement | null;
+    if (!toc) return;
+    
+    const toggle = toc.querySelector('[data-toc-toggle]') as HTMLButtonElement | null;
+    const nav = toc.querySelector('[data-toc-nav]') as HTMLElement | null;
+    const links = toc.querySelectorAll('[data-toc-link]') as NodeListOf<HTMLAnchorElement>;
+    
+    if (!toggle || !nav) return;
+    
+    // localStorage에서 접힘 상태 복원
+    const STORAGE_KEY = 'toc-collapsed';
+    const savedState = localStorage.getItem(STORAGE_KEY);
+    if (savedState === 'true') {
+      toc.dataset.collapsed = 'true';
+    }
+    
+    // 토글 버튼 클릭 핸들러
+    toggle.addEventListener('click', () => {
+      const isCollapsed = toc.dataset.collapsed === 'true';
+      toc.dataset.collapsed = isCollapsed ? 'false' : 'true';
+      localStorage.setItem(STORAGE_KEY, toc.dataset.collapsed);
+    });
+    
+    // 스무스 스크롤 + 활성 링크 업데이트
+    links.forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const targetId = link.getAttribute('data-toc-link');
+        if (!targetId) return;
+        
+        const target = document.getElementById(targetId);
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          // URL 해시 업데이트 (히스토리에 추가하지 않음)
+          history.replaceState(null, '', `#${targetId}`);
+        }
+      });
+    });
+    
+    // Intersection Observer로 현재 섹션 감지
+    const headingIds = Array.from(links).map(link => link.getAttribute('data-toc-link')).filter(Boolean) as string[];
+    const headings = headingIds.map(id => document.getElementById(id)).filter(Boolean) as HTMLElement[];
+    
+    if (headings.length === 0) return;
+    
+    let currentActiveId: string | null = null;
+    
+    const observer = new IntersectionObserver(
+      (entries) => {
+        // 화면에 보이는 heading 중 가장 위에 있는 것 찾기
+        const visibleEntries = entries.filter(entry => entry.isIntersecting);
+        
+        if (visibleEntries.length > 0) {
+          // 가장 위에 있는 heading 선택
+          const topEntry = visibleEntries.reduce((prev, curr) => {
+            return prev.boundingClientRect.top < curr.boundingClientRect.top ? prev : curr;
+          });
+          
+          const newActiveId = topEntry.target.id;
+          if (newActiveId !== currentActiveId) {
+            currentActiveId = newActiveId;
+            updateActiveLink(newActiveId);
+          }
+        }
+      },
+      {
+        rootMargin: '-80px 0px -70% 0px', // 상단 80px, 하단 70% 마진
+        threshold: 0,
+      },
+    );
+    
+    headings.forEach(heading => observer.observe(heading));
+    
+    function updateActiveLink(activeId: string) {
+      links.forEach(link => {
+        const linkId = link.getAttribute('data-toc-link');
+        link.dataset.active = linkId === activeId ? 'true' : 'false';
+      });
+    }
+    
+    // 초기 활성 링크 설정 (URL 해시 기반)
+    const hash = window.location.hash.slice(1);
+    if (hash && headingIds.includes(hash)) {
+      updateActiveLink(hash);
+    } else if (headings.length > 0) {
+      // 해시가 없으면 첫 번째 heading 활성화
+      updateActiveLink(headings[0].id);
+    }
+  }
+  
+  // DOM 로드 후 초기화
+  document.addEventListener('DOMContentLoaded', initTOC);
+  
+  // Astro View Transitions 지원
+  document.addEventListener('astro:page-load', initTOC);
+</script>

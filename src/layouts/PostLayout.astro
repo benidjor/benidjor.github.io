@@ -1,0 +1,366 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import TOC from '../components/TOC.astro';
+import Comments from '../components/Comments.astro';
+import ViewCount from '../components/ViewCount.astro';
+import { getTagStyle } from '../utils/tagColor';
+import { t } from '../i18n';
+
+interface Heading {
+  depth: number;
+  slug: string;
+  text: string;
+}
+
+interface Translation {
+  lang: string;
+  url: string;
+}
+
+interface Props {
+  title: string;
+  description?: string;
+  date?: Date;
+  tags?: string[];
+  headings?: Heading[];
+  readingTime?: number;
+  lang?: string;
+  translations?: Translation[];
+  currentUrl?: string;
+}
+
+const { title, description, date, tags = [], headings = [], readingTime, lang, translations = [], currentUrl } = Astro.props;
+
+const siteUrl = import.meta.env.SITE_URL || '';
+const alternateUrls = [
+  ...(lang && currentUrl ? [{ lang, url: `${siteUrl}${currentUrl}` }] : []),
+  ...translations.map(t => ({ lang: t.lang, url: `${siteUrl}${t.url}` })),
+];
+
+const base = import.meta.env.BASE_URL;
+const currentPath = Astro.url.pathname;
+const baseUrl = base.endsWith('/') ? base : `${base}/`;
+const dateLocale = t('dateLocale');
+
+const formattedDate = date ? new Intl.DateTimeFormat(dateLocale, {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+}).format(date) : null;
+---
+
+<BaseLayout title={title} description={description} alternateUrls={alternateUrls}>
+  <!-- TOC 사이드바 -->
+  <TOC headings={headings} />
+  
+  <article class="post">
+    <div class="container">
+      <header class="post__header">
+        <div class="post__meta">
+          {formattedDate && (
+            <time class="post__date" datetime={date?.toISOString()}>
+              {formattedDate}
+            </time>
+          )}
+          {readingTime && (
+            <span class="post__reading-time">
+              {t('readingTime', { minutes: readingTime })}
+            </span>
+          )}
+          {(lang || translations.length > 0) && (
+            <div class="post__lang-selector">
+              {lang && <span class="lang-current">{lang.toUpperCase()}</span>}
+              {translations.map((tr) => (
+                <a href={tr.url} class="lang-option">{tr.lang.toUpperCase()}</a>
+              ))}
+            </div>
+          )}
+          <ViewCount path={currentPath} />
+        </div>
+        {tags.length > 0 && (
+          <div class="post__tags">
+            {tags.map((tag) => (
+              <a href={`${baseUrl}tags/${tag.toLowerCase()}`} class="tag" style={getTagStyle(tag)}>{tag}</a>
+            ))}
+          </div>
+        )}
+        <h1 class="post__title">{title}</h1>
+        {description && <p class="post__description">{description}</p>}
+      </header>
+      
+      <div class="post__content content-width">
+        <slot />
+      </div>
+
+      <div class="post__comments content-width">
+        <Comments title={title} />
+      </div>
+      
+      <footer class="post__footer content-width">
+         <a href={`${baseUrl}posts`} class="back-to-list">
+           <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+             <line x1="19" y1="12" x2="5" y2="12"></line>
+             <polyline points="12 19 5 12 12 5"></polyline>
+           </svg>
+           {t('backToList')}
+         </a>
+       </footer>
+    </div>
+  </article>
+</BaseLayout>
+
+<style>
+  .post {
+    animation: fadeIn 0.4s ease;
+  }
+  
+  .post__header {
+    max-width: var(--content-width);
+    margin: 0 auto var(--spacing-3xl);
+    padding: 0 var(--spacing-lg) var(--spacing-xl);
+    border-bottom: var(--border-width) solid var(--border-color);
+  }
+  
+  .post__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+  }
+  
+  .post__date {
+    font-family: var(--font-mono);
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+    background-color: var(--bg-secondary);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border: 2px solid var(--border-color);
+  }
+
+  .post__reading-time {
+    font-family: var(--font-mono);
+    font-size: var(--font-size-sm);
+    color: var(--text-muted);
+  }
+
+  .post__lang-selector {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    font-family: var(--font-mono);
+    font-size: var(--font-size-xs);
+  }
+
+  .lang-current {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    background-color: var(--accent);
+    color: #000000;
+    font-weight: 700;
+    border: 2px solid var(--border-color);
+  }
+
+  .lang-option {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    text-decoration: none;
+    font-weight: 600;
+    border: 2px solid var(--border-color);
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast), background-color var(--transition-fast);
+  }
+
+  .lang-option:hover {
+    transform: translate(-1px, -1px);
+    box-shadow: 2px 2px 0 var(--shadow-color);
+    background-color: var(--accent);
+    color: #000000;
+  }
+
+  .post__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+  }
+
+  .tag {
+    display: inline-block;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    text-decoration: none;
+    border: 2px solid;
+    box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.15);
+    font-weight: 600;
+    font-size: var(--font-size-sm);
+    text-transform: lowercase;
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  }
+
+  .tag:hover {
+    transform: translate(-1px, -1px);
+    box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.25);
+  }
+  
+  .post__title {
+    font-size: var(--font-size-4xl);
+    margin-bottom: var(--spacing-md);
+  }
+  
+  .post__description {
+    font-size: var(--font-size-xl);
+    color: var(--text-secondary);
+    line-height: var(--line-height-relaxed);
+    margin: 0;
+  }
+  
+  .post__content {
+    max-width: var(--content-width);
+    margin: 0 auto;
+    padding: 0 var(--spacing-lg);
+    font-size: var(--font-size-lg);
+    line-height: var(--line-height-relaxed);
+    min-width: 0; /* prevent overflow of flex/grid */
+    overflow-wrap: break-word;
+    word-break: break-word;
+  }
+  
+  .post__content :global(h2) {
+    margin-top: var(--spacing-3xl);
+    margin-bottom: var(--spacing-lg);
+    padding-bottom: var(--spacing-sm);
+    border-bottom: 3px solid var(--accent);
+  }
+  
+  .post__content :global(h3) {
+    margin-top: var(--spacing-2xl);
+    margin-bottom: var(--spacing-md);
+  }
+  
+  .post__content :global(h4),
+  .post__content :global(h5),
+  .post__content :global(h6) {
+    margin-top: var(--spacing-xl);
+    margin-bottom: var(--spacing-md);
+  }
+  
+  .post__content :global(p) {
+    margin-bottom: var(--spacing-lg);
+  }
+  
+  .post__content :global(ul),
+  .post__content :global(ol) {
+    margin-bottom: var(--spacing-lg);
+    padding-left: var(--spacing-xl);
+  }
+  
+  .post__content :global(li) {
+    margin-bottom: var(--spacing-sm);
+  }
+  
+  .post__content :global(li::marker) {
+    color: var(--accent);
+    font-weight: 700;
+  }
+  
+  .post__content :global(img) {
+    max-width: 100%;
+    height: auto;
+    border: var(--border-width) solid var(--border-color);
+    box-shadow: 6px 6px 0 var(--shadow-color);
+    margin: var(--spacing-xl) 0;
+  }
+  
+  .post__content :global(hr) {
+    border: none;
+    height: var(--border-width);
+    background-color: var(--border-color);
+    margin: var(--spacing-2xl) 0;
+  }
+  
+  .post__content :global(table) {
+    width: 100%;
+    border-collapse: collapse;
+    margin: var(--spacing-xl) 0;
+    border: var(--border-width) solid var(--border-color);
+    box-shadow: 4px 4px 0 var(--shadow-color);
+  }
+  
+  .post__content :global(th),
+  .post__content :global(td) {
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: 2px solid var(--border-color);
+    text-align: left;
+  }
+  
+  .post__content :global(th) {
+    background-color: var(--accent);
+    color: #000000;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+  
+  .post__content :global(tr:nth-child(even)) {
+    background-color: var(--bg-secondary);
+  }
+  
+  .post__comments {
+    max-width: var(--content-width);
+    margin: 0 auto;
+    padding: 0 var(--spacing-lg);
+  }
+
+  .post__footer {
+    max-width: var(--content-width);
+    margin: var(--spacing-3xl) auto 0;
+    padding: var(--spacing-xl) var(--spacing-lg) 0;
+    border-top: var(--border-width) solid var(--border-color);
+  }
+
+  .back-to-list {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    text-decoration: none;
+    border: 2px solid var(--border-color);
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.15);
+    font-weight: 600;
+    font-size: var(--font-size-sm);
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast), background-color var(--transition-fast);
+  }
+
+  .back-to-list:hover {
+    transform: translate(-1px, -1px);
+    box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.25);
+    background-color: var(--accent);
+    color: #000000;
+  }
+
+  .back-to-list svg {
+    transition: transform var(--transition-fast);
+  }
+
+  .back-to-list:hover svg {
+    transform: translateX(-2px);
+  }
+  
+  @media (max-width: 768px) {
+    .post__title {
+      font-size: var(--font-size-3xl);
+    }
+    
+    .post__description {
+      font-size: var(--font-size-lg);
+    }
+    
+    .post__content {
+      font-size: var(--font-size-base);
+    }
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+</style>
