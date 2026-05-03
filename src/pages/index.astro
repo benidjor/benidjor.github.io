@@ -19,7 +19,11 @@ const introTags = intro.intro_tags || [];
 
 const allPosts = await getCollection('posts');
 const recentPosts = getPostsForLocale(allPosts)
-  .sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime())
+  .sort((a, b) => {
+    const dateDiff = new Date(b.data.date).getTime() - new Date(a.data.date).getTime();
+    if (dateDiff !== 0) return dateDiff;
+    return (b.data.publish_sync_at ?? '').localeCompare(a.data.publish_sync_at ?? '');
+  })
   .slice(0, 9);
 ---
 
@@ -83,17 +87,17 @@ const recentPosts = getPostsForLocale(allPosts)
                       day: 'numeric',
                     })}
                   </time>
-                  {post.data.tags && post.data.tags.length > 0 && (
-                    <div class="post-card__tags">
-                      {post.data.tags.map((tag: string) => (
-                        <span class="post-tag" style={getTagStyle(tag)}>{tag}</span>
-                      ))}
-                    </div>
-                  )}
                 </div>
                 <h3 class="post-card__title">
                   <a href={getPostUrl(post, baseUrl)}>{post.data.title}</a>
                 </h3>
+                {post.data.tags && post.data.tags.length > 0 && (
+                  <div class="post-card__tags">
+                    {post.data.tags.map((tag: string) => (
+                      <span class="post-tag" style={getTagStyle(tag)}>{tag}</span>
+                    ))}
+                  </div>
+                )}
                 {post.data.summary && (
                   <p class="post-card__summary">{post.data.summary}</p>
                 )}
@@ -362,7 +366,10 @@ const recentPosts = getPostsForLocale(allPosts)
 
   .post-card__tags {
     display: flex;
+    flex-wrap: wrap;
     gap: var(--spacing-xs);
+    margin-top: var(--spacing-md);
+    margin-bottom: var(--spacing-sm);
   }
 
   .post-tag {

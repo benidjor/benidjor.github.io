@@ -4,6 +4,26 @@
  * ============================================ */
 
 /* ============================================
+ * Web Fonts
+ *   - D2Coding (Naver, OFL): Korean-friendly monospace for code
+ *   - Pretendard is loaded via <link> in BaseLayout.astro
+ * ============================================ */
+@font-face {
+  font-family: 'D2Coding';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('https://cdn.jsdelivr.net/gh/joungkyun/font-d2coding/D2Coding.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'D2Coding';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('https://cdn.jsdelivr.net/gh/joungkyun/font-d2coding/D2CodingBold.woff2') format('woff2');
+}
+
+/* ============================================
  * CSS Variables - Light Theme (Default)
  * ============================================ */
 :root,
@@ -43,9 +63,9 @@
   --spacing-3xl: 4rem;
   
   /* Typography */
-  --font-sans: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --font-mono: 'IBM Plex Mono', 'Fira Code', 'Consolas', monospace;
-  --font-display: 'Archivo Black', 'Impact', sans-serif;
+  --font-sans: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --font-mono: 'D2Coding', 'Pretendard Variable', Pretendard, ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --font-display: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
   
   --font-size-xs: 0.75rem;
   --font-size-sm: 0.875rem;
@@ -115,7 +135,7 @@ body {
   color: var(--text-primary);
   background-color: var(--bg-primary);
   min-height: 100vh;
-  overflow-x: hidden;
+  overflow-x: clip;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }

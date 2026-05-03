@@ -56,12 +56,13 @@ const htmlLang = getLocale() === 'ko' ? 'ko' : 'en';
       })();
     </script>
     
-    <!-- 폰트 로드 -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link 
-      href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;600;700&display=swap" 
-      rel="stylesheet" 
+    <!-- 폰트 로드: Pretendard (SIL OFL) -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+    <link
+      rel="stylesheet"
+      as="style"
+      crossorigin
+      href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
     />
   </head>
   <body>
@@ -185,39 +186,35 @@ const htmlLang = getLocale() === 'ko' ? 'ko' : 'en';
 
     .header__inner {
       flex-wrap: wrap;
-      position: relative;
       gap: var(--spacing-sm);
     }
 
     .header__logo {
-      order: 2;
-      position: absolute;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: var(--font-size-lg);
+      order: 1;
+      font-size: var(--font-size-base);
       padding: var(--spacing-xs) var(--spacing-sm);
       box-shadow: 2px 2px 0 var(--shadow-color);
+      white-space: nowrap;
     }
 
     .header__logo:hover {
-      transform: translateX(-50%) translate(-1px, -1px);
+      transform: translate(-1px, -1px);
       box-shadow: 3px 3px 0 var(--shadow-color);
     }
 
     .header__actions {
-      order: 1;
+      order: 2;
       margin-left: auto;
       gap: var(--spacing-xs);
     }
-    
+
     .header__nav {
       order: 3;
       width: 100%;
       justify-content: center;
-      margin-top: var(--spacing-lg);
       gap: var(--spacing-sm);
     }
-    
+
     .header__link {
       font-size: var(--font-size-sm);
       padding: var(--spacing-xs);
