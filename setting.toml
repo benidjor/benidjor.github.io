@@ -25,16 +25,16 @@ exclude_tags = ["private", "draft", "personal"]
 [posts.translate]
 enabled = false
 
-# === Comments (Giscus) — Phase A: disabled, will enable after Task 7 ===
+# === Comments (Giscus) ===
 [comments]
-enabled = false
+enabled = true
 provider = "giscus"
 
 [comments.giscus]
 repo = "benidjor/benidjor.github.io"
-repo_id = ""
+repo_id = "R_kgDOMiFp9A"
 category = "Comments"
-category_id = ""
+category_id = "DIC_kwDOMiFp9M4C8QXo"
 mapping = "pathname"
 strict = "0"
 reactions_enabled = "1"
