@@ -43,11 +43,11 @@ input_position = "top"
 theme = "preferred_color_scheme"
 lang = "ko"
 
-# === Analytics (GoatCounter) — Phase A: disabled, will enable after Task 8 ===
+# === Analytics (GoatCounter) ===
 [analytics]
-enabled = false
+enabled = true
 provider = "goatcounter"
 
 [analytics.goatcounter]
-site_code = ""
+site_code = "benidjor"
 show_view_count = true
