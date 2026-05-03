@@ -1,0 +1,14 @@
+---
+import { getCollection } from 'astro:content';
+
+const posts = await getCollection('posts');
+const aboutPost = posts.find((p) =>
+  p.slug.toLowerCase().includes('about')
+);
+
+if (!aboutPost) {
+  return Astro.redirect('/404');
+}
+
+return Astro.redirect(`/posts/${aboutPost.slug}/`);
+---
