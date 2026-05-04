@@ -1,0 +1,195 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { t, getLocale } from '../../i18n';
+import { getPostsForLocale, getPostUrl } from '../../utils/i18nRouting';
+
+interface CategoryEntry {
+  label_ko: string;
+  label_en: string;
+  description_ko: string;
+  description_en: string;
+}
+
+export async function getStaticPaths() {
+  const categoriesConfig = import.meta.env.CATEGORIES || { order: [] };
+  const order: string[] = categoriesConfig.order || [];
+
+  const allPosts = await getCollection('posts');
+  const posts = getPostsForLocale(allPosts);
+
+  return order.map((slug) => ({
+    params: { slug },
+    props: {
+      slug,
+      posts: posts
+        .filter((post) => post.data.category === slug)
+        .sort((a, b) => {
+          const dateDiff = new Date(b.data.date).getTime() - new Date(a.data.date).getTime();
+          if (dateDiff !== 0) return dateDiff;
+          return (b.data.publish_sync_at ?? '').localeCompare(a.data.publish_sync_at ?? '');
+        }),
+    },
+  }));
+}
+
+interface Props {
+  slug: string;
+  posts: CollectionEntry<'posts'>[];
+}
+
+const { slug, posts } = Astro.props;
+
+const base = import.meta.env.BASE_URL;
+const baseUrl = base.endsWith('/') ? base : `${base}/`;
+const dateLocale = t('dateLocale');
+const locale = getLocale();
+
+const categoriesConfig = import.meta.env.CATEGORIES || { order: [] };
+const entry = categoriesConfig[slug] as CategoryEntry | undefined;
+const label = entry ? (locale === 'ko' ? entry.label_ko : entry.label_en) : slug;
+const description = entry ? (locale === 'ko' ? entry.description_ko : entry.description_en) : '';
+---
+
+<BaseLayout
+  title={t('categoryPageTitle', { category: label })}
+  description={description || t('categoryPageTitle', { category: label })}
+>
+  <div class="container">
+    <div class="category-page">
+      <div class="category-page__header">
+        <a href={`${baseUrl}categories`} class="category-page__back">{t('backToCategories')}</a>
+        <h1 class="category-page__title">{label}</h1>
+        <p class="category-page__count">{t('categoryPostsCount', { count: posts.length })}</p>
+        {description && <p class="category-page__description">{description}</p>}
+      </div>
+
+      <div class="category-page__posts">
+        {posts.length > 0 ? (
+          <div class="posts-list">
+            {posts.map((post) => (
+              <article class="post-card">
+                <h2 class="post-card__title">
+                  <a href={getPostUrl(post, baseUrl)}>{post.data.title}</a>
+                </h2>
+                <p class="post-card__date">
+                  {new Date(post.data.date).toLocaleDateString(dateLocale, {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                  })}
+                </p>
+                {post.data.summary && (
+                  <p class="post-card__summary">{post.data.summary}</p>
+                )}
+              </article>
+            ))}
+          </div>
+        ) : (
+          <p class="category-page__empty">{t('noPostsInCategory')}</p>
+        )}
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .category-page {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 var(--spacing-lg);
+  }
+
+  .category-page__header {
+    margin-bottom: var(--spacing-2xl);
+  }
+
+  .category-page__back {
+    display: inline-block;
+    margin-bottom: var(--spacing-md);
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color var(--transition-fast);
+  }
+
+  .category-page__back:hover {
+    color: var(--text-primary);
+  }
+
+  .category-page__title {
+    font-family: var(--font-display);
+    font-size: var(--font-size-4xl);
+    font-weight: 900;
+    margin: 0 0 var(--spacing-md) 0;
+    text-transform: uppercase;
+  }
+
+  .category-page__count {
+    font-size: var(--font-size-lg);
+    color: var(--text-secondary);
+    margin: 0 0 var(--spacing-md) 0;
+  }
+
+  .category-page__description {
+    font-size: var(--font-size-base);
+    color: var(--text-secondary);
+    line-height: var(--line-height-relaxed);
+    margin: 0;
+    padding: var(--spacing-md);
+    border-left: 3px solid var(--accent);
+    background-color: var(--bg-secondary);
+  }
+
+  .category-page__empty {
+    text-align: center;
+    color: var(--text-secondary);
+    padding: var(--spacing-2xl);
+  }
+
+  .posts-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+  }
+
+  .post-card {
+    padding: var(--spacing-lg);
+    border: var(--border-width) solid var(--border-color);
+    background-color: var(--bg-secondary);
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  }
+
+  .post-card:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 4px 4px 0 var(--shadow-color);
+  }
+
+  .post-card__title {
+    margin: 0 0 var(--spacing-sm) 0;
+    font-size: var(--font-size-xl);
+  }
+
+  .post-card__title a {
+    text-decoration: none;
+    color: var(--text-primary);
+    transition: color var(--transition-fast);
+  }
+
+  .post-card__title a:hover {
+    color: var(--accent);
+  }
+
+  .post-card__date {
+    margin: 0 0 var(--spacing-md) 0;
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+  }
+
+  .post-card__summary {
+    margin: 0;
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+</style>
