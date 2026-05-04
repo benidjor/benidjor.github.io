@@ -199,15 +199,19 @@ const filteredHeadings = headings.filter(h => h.depth >= 2 && h.depth <= 3);
     });
     
     // 스무스 스크롤 + 활성 링크 업데이트
+    // sticky header가 anchor를 가리는 문제 회피: scroll-margin-top/scroll-padding-top이
+    // 일부 브라우저의 scrollIntoView에 적용되지 않으므로 픽셀 단위로 직접 보정.
+    const HEADER_OFFSET = 80;
     links.forEach(link => {
       link.addEventListener('click', (e) => {
         e.preventDefault();
         const targetId = link.getAttribute('data-toc-link');
         if (!targetId) return;
-        
+
         const target = document.getElementById(targetId);
         if (target) {
-          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          const top = target.getBoundingClientRect().top + window.scrollY - HEADER_OFFSET;
+          window.scrollTo({ top, behavior: 'smooth' });
           // URL 해시 업데이트 (히스토리에 추가하지 않음)
           history.replaceState(null, '', `#${targetId}`);
         }
