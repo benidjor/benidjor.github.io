@@ -1,0 +1,117 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { t, getLocale } from '../../i18n';
+import { getPostsForLocale } from '../../utils/i18nRouting';
+
+interface CategoryEntry {
+  label_ko: string;
+  label_en: string;
+  description_ko: string;
+  description_en: string;
+}
+
+const base = import.meta.env.BASE_URL;
+const baseUrl = base.endsWith('/') ? base : `${base}/`;
+const locale = getLocale();
+
+const categoriesConfig = import.meta.env.CATEGORIES || { order: [] };
+const order: string[] = categoriesConfig.order || [];
+
+const allPosts = await getCollection('posts');
+const posts = getPostsForLocale(allPosts);
+
+const categories = order.map((slug) => {
+  const entry = categoriesConfig[slug] as CategoryEntry | undefined;
+  const label = entry ? (locale === 'ko' ? entry.label_ko : entry.label_en) : slug;
+  const description = entry ? (locale === 'ko' ? entry.description_ko : entry.description_en) : '';
+  const count = posts.filter((post) => post.data.category === slug).length;
+  return { slug, label, description, count };
+});
+---
+
+<BaseLayout title={t('categoriesPageTitle')} description={t('categoriesPageTitle')}>
+  <div class="container">
+    <div class="categories-page">
+      <h1 class="categories-page__title">{t('categoriesPageTitle')}</h1>
+      <p class="categories-page__subtitle">
+        {t('categoriesPageSubtitle', { count: categories.length })}
+      </p>
+
+      <div class="categories-page__list">
+        {categories.map((cat) => (
+          <a href={`${baseUrl}categories/${cat.slug}`} class="category-card">
+            <h2 class="category-card__title">{cat.label}</h2>
+            <p class="category-card__count">
+              {t('categoryPostsCount', { count: cat.count })}
+            </p>
+            <p class="category-card__description">{cat.description}</p>
+          </a>
+        ))}
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .categories-page {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 var(--spacing-lg);
+  }
+
+  .categories-page__title {
+    font-family: var(--font-display);
+    font-size: var(--font-size-4xl);
+    font-weight: 900;
+    margin: 0 0 var(--spacing-md) 0;
+    text-transform: uppercase;
+  }
+
+  .categories-page__subtitle {
+    font-size: var(--font-size-lg);
+    color: var(--text-secondary);
+    margin: 0 0 var(--spacing-2xl) 0;
+  }
+
+  .categories-page__list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+  }
+
+  .category-card {
+    display: block;
+    padding: var(--spacing-xl);
+    border: var(--border-width) solid var(--border-color);
+    background-color: var(--bg-secondary);
+    text-decoration: none;
+    color: var(--text-primary);
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  }
+
+  .category-card:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 4px 4px 0 var(--shadow-color);
+    background-color: var(--bg-primary);
+  }
+
+  .category-card__title {
+    margin: 0 0 var(--spacing-xs) 0;
+    font-size: var(--font-size-2xl);
+    color: var(--accent);
+  }
+
+  .category-card__count {
+    margin: 0 0 var(--spacing-md) 0;
+    font-family: var(--font-mono);
+    font-size: var(--font-size-sm);
+    color: var(--text-muted);
+  }
+
+  .category-card__description {
+    margin: 0;
+    color: var(--text-secondary);
+    line-height: var(--line-height-normal);
+  }
+</style>
