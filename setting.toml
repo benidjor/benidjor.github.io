@@ -26,6 +26,22 @@ exclude_tags = ["private", "draft", "personal"]
 [posts.translate]
 enabled = false
 
+# === Categories ===
+[categories]
+order = ["projects", "til"]
+
+[categories.projects]
+label_ko = "Projects"
+label_en = "Projects"
+description_ko = "데이터 엔지니어링 실무 / 사이드 프로젝트 시리즈."
+description_en = "Data engineering work and side-project series."
+
+[categories.til]
+label_ko = "TIL"
+label_en = "TIL"
+description_ko = "오늘 배운 것 — 짧은 호흡의 학습 기록."
+description_en = "Today I learned — short, frequent learning notes."
+
 # === Comments (Giscus) ===
 [comments]
 enabled = true
