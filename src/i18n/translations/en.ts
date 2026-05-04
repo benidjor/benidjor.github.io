@@ -43,6 +43,8 @@ export const en = {
   neoBrutalismDesc: 'Bold borders and hard shadows',
   glassmorphism: 'Glassmorphism',
   glassmorphismDesc: 'Translucent glass effect',
+  reading: 'Reading',
+  readingDesc: 'Serif type, warm paper, content-first',
 
   // TOC
   tableOfContents: 'Contents',

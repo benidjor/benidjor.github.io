@@ -45,6 +45,8 @@ export const ko: Record<TranslationKey, string> = {
   neoBrutalismDesc: '두꺼운 테두리와 하드 섀도우',
   glassmorphism: 'Glassmorphism',
   glassmorphismDesc: '반투명 유리 효과',
+  reading: 'Reading',
+  readingDesc: '세리프 본문, 따뜻한 종이 톤, 콘텐츠 중심',
 
   // TOC
   tableOfContents: '목차',
