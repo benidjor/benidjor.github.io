@@ -20,9 +20,12 @@ About page. After dogfooding, the author identified four issues:
    tags — including type-of-post tags `projects` and `til` — but there is no first-class
    "category" concept. A recruiter or peer engineer landing on the site cannot quickly
    see "projects vs TIL" as separate streams.
+5. The Korean homepage greeting reads `안녕하세요,` / `benidjor` — grammatically dangling.
+   The author wants `benidjor 입니다.` to close the sentence naturally.
 
-The four changes are tackled together because they share files (theme CSS, header,
-homepage, i18n strings) and a single design pass keeps the visual language coherent.
+The five changes are tackled together because they share files (theme CSS, header,
+homepage, i18n strings, intro config) and a single design pass keeps the visual language
+coherent.
 
 ## Goals
 
@@ -344,6 +347,68 @@ translation files, because they are content (per-blog) rather than UI chrome.
 
 ---
 
+---
+
+## Change 5 — Homepage greeting suffix
+
+### Intent
+
+Close the dangling Korean greeting `안녕하세요, / benidjor` so it reads as a complete
+sentence: `안녕하세요, / benidjor 입니다.`. The English fallback `Hello, I'm benidjor`
+already reads naturally and should not gain a Korean particle, so the suffix is rendered
+as a separate, optional span that the author can leave empty for English-only setups.
+
+### Approach
+
+- Add a new optional field `name_suffix` to the `[intro]` table in `setting.toml`.
+  Value for this site: `" 입니다."`. Leading space is intentional (it sits between the
+  name box and the suffix text).
+- `astro.config.mjs` already injects the entire `[intro]` table as `import.meta.env.INTRO`,
+  so no config-loader change is needed; the new key flows through automatically.
+- In `src/pages/index.astro` frontmatter, read `intro.name_suffix` with a default of `''`
+  alongside the other `intro.*` reads (line 13–18 region).
+- In the template (line 44–47 region), append a new sibling span **after** the existing
+  `<span class="intro__name">{introName}</span>`, only when the suffix is non-empty:
+
+  ```astro
+  <h1 class="intro__greeting">
+    {introGreeting}<br />
+    <span class="intro__name">{introName}</span>{introNameSuffix && (
+      <span class="intro__name-suffix">{introNameSuffix}</span>
+    )}
+  </h1>
+  ```
+
+- Add a small style block for `.intro__name-suffix`: same base font as the heading, no
+  background, no rotation, no shadow — it is plain text. It inherits color from the
+  heading. This keeps the strong "tilted accent box" only on the English-readable name
+  while the Korean particle reads as natural body type next to it.
+
+### Why a separate span (not concatenated into `name`)
+
+- `name` is reused outside the homepage hero (e.g. in SEO defaults via
+  `intro.name`, derived display strings). Embedding `" 입니다."` into `name` would leak
+  Korean particles into contexts where only the bare identifier is appropriate.
+- The visual treatment is intentionally different: `intro__name` has a colored
+  background and rotation; the suffix should not.
+- The field is optional, so an English-only deployment of this template can leave it
+  empty and get clean rendering.
+
+### Files touched
+
+- `setting.toml` — add `name_suffix = " 입니다."` to `[intro]`.
+- `src/pages/index.astro` — read `intro.name_suffix`, render conditional sibling span,
+  add `.intro__name-suffix` style.
+
+### Out of scope
+
+- Locale-specific suffixes (`name_suffix_ko` / `name_suffix_en`). The current suffix is
+  shared across locales; this is acceptable because the site's primary locale is `ko`
+  and the English fallback can leave it empty if it ever needs to diverge.
+- Restructuring `intro.greeting` itself.
+
+---
+
 ## Cross-cutting concerns
 
 ### Single source of truth
@@ -402,9 +467,10 @@ keeps the theme zero-network-cost by default.
 The plan should sequence these so that each step is independently verifiable:
 
 1. Change 1 (Material accent) — smallest, isolated to one CSS file.
-2. Change 3 (recent posts) — touches one page, removes JS, easy to verify visually.
-3. Change 2 (reading theme) — isolated additions; new selector block + selector option.
-4. Change 4 (categories) — largest; introduces new pages, schema, nav, frontmatter
+2. Change 5 (greeting suffix) — single page edit + one config field; trivial.
+3. Change 3 (recent posts) — touches one page, removes JS, easy to verify visually.
+4. Change 2 (reading theme) — isolated additions; new selector block + selector option.
+5. Change 4 (categories) — largest; introduces new pages, schema, nav, frontmatter
    edits, and i18n keys. Done last so earlier changes are not blocked.
 
 ## Open questions
