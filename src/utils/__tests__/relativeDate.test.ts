@@ -39,6 +39,16 @@ describe('getRelativeDate', () => {
     expect(getRelativeDate(date, 'en-US', FIXED_NOW)).toBe('2 weeks ago');
   });
 
+  it('returns "1 week ago" exactly 7 days ago (en)', () => {
+    const date = new Date('2026-04-27T00:00:00Z');
+    expect(getRelativeDate(date, 'en-US', FIXED_NOW)).toBe('1 week ago');
+  });
+
+  it('returns "1 month ago" exactly 30 days ago (en)', () => {
+    const date = new Date('2026-04-04T00:00:00Z');
+    expect(getRelativeDate(date, 'en-US', FIXED_NOW)).toBe('1 month ago');
+  });
+
   it('returns months for 30+ days ago (ko)', () => {
     const date = new Date('2026-02-04T00:00:00Z'); // ~89 days ago
     expect(getRelativeDate(date, 'ko-KR', FIXED_NOW)).toBe('3개월 전');
