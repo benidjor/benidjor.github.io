@@ -27,9 +27,10 @@ interface Props {
   lang?: string;
   translations?: Translation[];
   currentUrl?: string;
+  category?: string;
 }
 
-const { title, description, date, tags = [], headings = [], readingTime, lang, translations = [], currentUrl } = Astro.props;
+const { title, description, date, tags = [], headings = [], readingTime, lang, translations = [], currentUrl, category } = Astro.props;
 
 const siteUrl = import.meta.env.SITE_URL || '';
 const alternateUrls = [
@@ -76,6 +77,11 @@ const formattedDate = date ? new Intl.DateTimeFormat(dateLocale, {
             </div>
           )}
           <ViewCount path={currentPath} />
+          {category && (
+            <a href={`${baseUrl}categories/${category}`} class="post__category">
+              {t('category')}: {category}
+            </a>
+          )}
         </div>
         {tags.length > 0 && (
           <div class="post__tags">
@@ -363,5 +369,23 @@ const formattedDate = date ? new Intl.DateTimeFormat(dateLocale, {
   @keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
+  }
+
+  .post__category {
+    font-family: var(--font-mono);
+    font-size: var(--font-size-sm);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    background-color: var(--bg-secondary);
+    color: var(--text-secondary);
+    border: 2px solid var(--border-color);
+    text-decoration: none;
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast), background-color var(--transition-fast);
+  }
+
+  .post__category:hover {
+    transform: translate(-1px, -1px);
+    box-shadow: 2px 2px 0 var(--shadow-color);
+    background-color: var(--accent);
+    color: #000000;
   }
 </style>

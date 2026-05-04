@@ -19,7 +19,7 @@ export async function getStaticPaths() {
 
 const { post, allPosts } = Astro.props;
 const { Content, headings } = await post.render();
-const { title, summary, date, tags, lang } = post.data;
+const { title, summary, date, tags, lang, category } = post.data;
 const readingTime = calculateReadingTime(post.body);
 // 본문에 summary callout이 있으면 상단 description 표시 생략 (중복 방지)
 const hasSummaryCallout = post.body?.includes('callout-summary') ?? false;
@@ -37,6 +37,7 @@ const currentUrl = getPostUrl(post, baseUrl);
   headings={headings}
   readingTime={readingTime}
   lang={lang}
+  category={category}
   translations={translations.map(t => ({ lang: t.lang, url: getPostUrl(t.post, baseUrl) }))}
   currentUrl={currentUrl}
 >
