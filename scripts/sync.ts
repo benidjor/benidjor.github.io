@@ -513,6 +513,9 @@ export function generateFrontmatter(doc: PublishableDocument, settings?: Setting
   
   let yaml = `title: ${doc.title}\ndate: ${dateStr}\npublish: true\npublish_sync_at: "${publishSyncAt}"\nlang: ${lang}`;
   
+  if (doc.frontmatter.category) {
+    yaml += `\ncategory: ${doc.frontmatter.category}`;
+  }
   if (doc.frontmatter.tags) {
     const rawTags = doc.frontmatter.tags as string[];
     const tags = filterExcludedTags(rawTags, settings?.posts?.exclude_tags);
