@@ -21,6 +21,16 @@ export const ko: Record<TranslationKey, string> = {
   noPostsInTag: '이 태그의 포스트가 없습니다.',
   backToTags: '← 태그 목록',
 
+  // Categories page
+  categories: '카테고리',
+  category: '카테고리',
+  categoriesPageTitle: '카테고리',
+  categoriesPageSubtitle: '{count}개의 카테고리',
+  categoryPageTitle: '카테고리: {category}',
+  categoryPostsCount: '{count}개의 포스트',
+  noPostsInCategory: '이 카테고리의 포스트가 없습니다.',
+  backToCategories: '← 카테고리',
+
   // Home
   recentPosts: '최근 포스트',
   viewAllPosts: '모든 글 보기 →',

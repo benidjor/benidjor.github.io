@@ -19,6 +19,16 @@ export const en = {
   noPostsInTag: 'No posts with this tag.',
   backToTags: '← Tags',
 
+  // Categories page
+  categories: 'Categories',
+  category: 'Category',
+  categoriesPageTitle: 'Categories',
+  categoriesPageSubtitle: '{count} categories',
+  categoryPageTitle: 'Category: {category}',
+  categoryPostsCount: '{count} posts',
+  noPostsInCategory: 'No posts in this category.',
+  backToCategories: '← Categories',
+
   // Home
   recentPosts: 'Recent Posts',
   viewAllPosts: 'View all posts →',
