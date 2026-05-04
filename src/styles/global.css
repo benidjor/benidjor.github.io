@@ -496,15 +496,15 @@ blockquote {
   --backdrop-blur: none;
   --surface-opacity: 1;
   
-  --accent: #6750A4;
-  --accent-hover: #7965AF;
+  --accent: #00A173;
+  --accent-hover: #00CE93;
 }
 
 [data-design-theme="material"][data-theme="dark"] {
   --card-shadow: 0 2px 4px rgba(0, 0, 0, 0.3), 0 4px 8px rgba(0, 0, 0, 0.2);
   --card-hover-shadow: 0 4px 8px rgba(0, 0, 0, 0.4), 0 8px 16px rgba(0, 0, 0, 0.3);
-  --accent: #D0BCFF;
-  --accent-hover: #E8DEF8;
+  --accent: #00CE93;
+  --accent-hover: #7FE7C0;
 }
 
 /* ============================================
