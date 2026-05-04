@@ -16,6 +16,7 @@ const introRole = intro.role || 'Developer';
 const introGreeting = intro.greeting || "Hello, I'm";
 const introDescription = intro.description || 'Welcome to my blog.';
 const introTags = intro.intro_tags || [];
+const introNameSuffix = intro.name_suffix || '';
 
 const allPosts = await getCollection('posts');
 const recentPosts = getPostsForLocale(allPosts)
@@ -43,7 +44,9 @@ const recentPosts = getPostsForLocale(allPosts)
       <div class="intro__content animate-slide-up stagger-1">
         <h1 class="intro__greeting">
           {introGreeting}<br />
-          <span class="intro__name">{introName}</span>
+          <span class="intro__name">{introName}</span>{introNameSuffix && (
+            <span class="intro__name-suffix">{introNameSuffix}</span>
+          )}
         </h1>
         <p class="intro__role">
           <span class="role-bracket">&lt;</span>
@@ -180,6 +183,13 @@ const recentPosts = getPostsForLocale(allPosts)
     padding: 0 var(--spacing-sm);
     transform: rotate(-1deg);
     box-shadow: 4px 4px 0 var(--shadow-color);
+  }
+
+  .intro__name-suffix {
+    display: inline-block;
+    margin-left: var(--spacing-xs);
+    color: var(--text-primary);
+    font-weight: inherit;
   }
 
    /* Role display */

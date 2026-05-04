@@ -2,6 +2,7 @@
 
 interface IntroConfig {
   name?: string;
+  name_suffix?: string;
   role?: string;
   greeting?: string;
   description?: string;
