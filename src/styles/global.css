@@ -618,3 +618,59 @@ blockquote {
 [data-design-theme="glassmorphism"][data-theme="dark"] .tag {
   background-color: rgba(60, 60, 60, 0.4);
 }
+
+/* ============================================
+ * Design Theme: Reading
+ * ============================================ */
+[data-design-theme="reading"] {
+  --border-width: 1px;
+  --radius: 4px;
+  --shadow-offset: 0;
+  --card-shadow: none;
+  --card-hover-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+  --backdrop-blur: none;
+  --surface-opacity: 1;
+
+  --bg-primary: #FBF7F0;
+  --bg-secondary: #F4EFE6;
+  --border-color: #D9D2C5;
+  --text-primary: #2A2722;
+  --text-secondary: #5A544B;
+  --text-muted: #8A8378;
+  --shadow-color: rgba(42, 39, 34, 0.12);
+
+  --accent: #6B5B3E;
+  --accent-hover: #8A7651;
+
+  --font-serif: 'Noto Serif KR', 'Source Serif Pro', Georgia, serif;
+}
+
+[data-design-theme="reading"][data-theme="dark"] {
+  --bg-primary: #1F1B16;
+  --bg-secondary: #2A251F;
+  --border-color: #4A4238;
+  --text-primary: #EDE5D5;
+  --text-secondary: #BDB4A2;
+  --text-muted: #8A8378;
+  --shadow-color: rgba(0, 0, 0, 0.4);
+
+  --accent: #D4B881;
+  --accent-hover: #E8CFA0;
+}
+
+[data-design-theme="reading"] .post__content,
+[data-design-theme="reading"] .post__content p,
+[data-design-theme="reading"] .post__description,
+[data-design-theme="reading"] .intro__desc {
+  font-family: var(--font-serif);
+}
+
+[data-design-theme="reading"] .post-card,
+[data-design-theme="reading"] .intro__name {
+  box-shadow: none;
+}
+
+[data-design-theme="reading"] .post-card:hover {
+  box-shadow: var(--card-hover-shadow);
+  transform: translate(-1px, -1px);
+}
