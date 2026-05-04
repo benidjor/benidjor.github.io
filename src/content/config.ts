@@ -1,5 +1,9 @@
 import { defineCollection, z } from 'astro:content';
 
+// Category slugs must match `[categories].order` in setting.toml.
+// Update both when adding a category.
+const CATEGORY_SLUGS = ['projects', 'til'] as const;
+
 const posts = defineCollection({
   type: 'content',
   schema: z.object({
@@ -14,6 +18,7 @@ const posts = defineCollection({
     translated_from: z.string().optional(),
     translate_sync_at: z.string().optional(),
     publish_sync_at: z.string().optional(),
+    category: z.enum(CATEGORY_SLUGS).optional(),
   }),
 });
 
